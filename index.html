@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GOパワーシミュレーターⅡ｜詳細診断版・法人税制優遇判定搭載 (GoPower Simulator II - Pro)</title>
+<title>GO Power Simulator II — Simulator PLTS & BESS Indonesia</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
@@ -279,160 +279,20 @@ const GOPOWER_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAADiCAYA
 // 多言語辞書 (i18n Translations: JA / ID / EN)
 // ============================================================
 const TRANSLATIONS = {
-  ja: {
-    appTitle: "GOパワーシミュレーターⅡ",
-    appSubtitle: "詳細診断版・法人税制優遇判定搭載",
-    versionBadge: "Ver 2.5 Pro",
-    tabInput: "① 診断条件入力",
-    tabResult: "② 診断結果・レポート",
-    disclaimerTitle: "GOパワーシミュレーターⅡ ご利用にあたって",
-    disclaimerSub: "営業・診断開始前の重要確認事項",
-    disclaimerItem1Title: "国・自治体の補助金について",
-    disclaimerItem1Desc: "当社製品（太陽光パネル・蓄電池）は中国製のため、SII登録等を要件とする国や自治体の補助金は対象外となります。",
-    disclaimerItem2Title: "法人税制優遇制度（中小企業経営強化税制など）について",
-    disclaimerItem2Desc: "補助金対象外であっても、法人のお客様は「中小企業経営強化税制 A類型/B類型」による即時償却または税額控除（最大10%）を別枠で活用可能です。",
-    disclaimerItem3Title: "試算値の取り扱いについて",
-    disclaimerItem3Desc: "本診断は日射量データおよび標準仕様に基づく概算シミュレーションです。正式な見積額・発電予測は現地調査後に提示いたします。",
-    disclaimerBtn: "上記の内容を理解してシミュレーターを開始",
-    sec1Title: "① 物件特定",
-    propAddress: "物件住所",
-    propAddressPlaceholder: "例：愛知県名古屋市緑区上旭2-1226",
-    buildingTypeLabel: "建物種別",
-    roofShapeLabel: "屋根形状",
-    roofAreaModeLabel: "屋根面積の取得方法",
-    modeMap: "🛰️ 航空写真で実測（推奨）",
-    modeManual: "✏️ 手入力",
-    mapTip: "住所を入力した後、下のボタンで航空写真を表示し、屋根の四隅をタップして面積を測ります。お客様にも画面を見せながら一緒に確認できます。",
-    btnOpenMap: "🗺️ 航空写真を表示して測定する",
-    btnGeocoding: "位置情報取得中...",
-    mapMeasuredOk: "航空写真上で計測済み（{area}㎡）。再測定する場合は再度ボタンを押してください。",
-    manualTip: "事前調査で屋根面積が分かっている場合は、下の屋根面積欄に直接ご入力ください。",
-    roofAreaLabel: "屋根面積（㎡） — 値は編集可能",
-    effectiveRoofArea: "有効面積（係数適用後）：",
-    panelSheets: "想定パネル枚数：",
-    panelUnit: "枚",
-    installedCapacity: "搭載容量：",
-    sec2Title: "② 経済条件（電気代・単価設定）",
-    monthlyKwhLabel: "月間電力使用量（kWh/月）",
-    monthlyBillLabel: "月額電気代（円/月・税込概算）",
-    electricityRateLabel: "電気料金単価（円/kWh）",
-    plnTariffSelectLabel: "インドネシアPLN料金プラン選択:",
-    customRateOption: "✏️ カスタム入力...",
-    elecRateAutoTip: "※ 建物種別に応じて初期値を設定。実際の請求書に合わせて調整してください。",
-    secRatesSettingTitle: "⚙️ 為替レート・通貨換算設定（YEN / USD / IDR）",
-    rateJpyToIdr: "1 JPY ＝ (IDR Rupiah)",
-    rateUsdToIdr: "1 USD ＝ (IDR Rupiah)",
-    rateCalculated: "為替換算基準：",
-    btnResetRates: "標準レートに戻す",
-    sec3Title: "③ BCP（停電対策・重要負荷）",
-    bcpTargetHoursLabel: "停電時の目標稼働時間（BCP目標時間）",
-    hoursUnit: "時間",
-    importantLoadsLabel: "停電時に維持したい重要設備（複数選択可）",
-    customLoadKwLabel: "合計重要負荷（kW） — 自動計算または直接調整",
-    requiredBatteryCalcLabel: "蓄電池必要容量（kWh）",
-    sec4Title: "④ 法人税制優遇の前提条件",
-    corpScaleLabel: "企業規模区分",
-    isAoiroLabel: "青色申告法人（税制優遇の必須要件）",
-    isAoiroYes: "青色申告を行っている",
-    isAoiroNo: "白色申告",
-    kogyoCertLabel: "工業会証明書の取得見込み（A類型判定用）",
-    kogyoCertYes: "取得可能（即時償却/10%控除のA類型へ）",
-    kogyoCertNo: "取得不可または未定（B類型検討）",
-    annualProfitLabel: "年間経常利益 / 課税所得の目安（円）",
-    btnGoToResult: "詳細診断結果を見る →",
-    sec5Title: "⑤ 製品・単価マスタ（任意設定）",
-    masterToggle: "製品・工事単価マスタの設定を確認・変更する",
-    toggleClose: "▲ 閉じる",
-    toggleOpen: "▼ 表示する",
-    resultBackBtn: "← 入力に戻る",
-    companyPlaceholder: "会社名（株式会社○○ など）",
-    btnPptxExport: "PowerPoint提案書を作成",
-    btnPdfExport: "PDF提案書ダウンロード",
-    targetProperty: "診断対象物件",
-    noAddress: "（住所未入力）",
-    overallRank: "総合判定",
-    rankA: "即導入推奨",
-    rankB: "導入価値あり",
-    rankC: "BCP対策向き",
-    rankD: "要再検討",
-    cardCapacity: "搭載容量",
-    cardBattery: "蓄電池容量",
-    cardGen: "年間発電量",
-    cardSelfRate: "自家消費率",
-    sheetsSub: "パネル {sheets}枚",
-    batteryUnitSub: "{units}ユニット",
-    withBatterySub: "蓄電池込み",
-    secEconTitle: "経済性",
-    annualSaving: "年間電気代削減額",
-    investmentCost: "投資額（税抜）",
-    paybackYears: "回収年数",
-    afterTax: "税制優遇後",
-    perYear: "/年",
-    standardBase: "標準構成ベース",
-    chartTitle: "20年累計キャッシュフロー",
-    yearUnit: "年",
-    cumProfit20: "20年累計利益：",
-    withTaxProfit: "税制優遇込み：",
-    secBcpTitle: "BCP（事業継続計画）価値",
-    recBatteryCap: "推奨蓄電池容量",
-    recBatteryMin: "必要量 {req}kWh以上",
-    backupHoursLabel: "停電時に守れる時間",
-    backupHoursSub: "重要負荷{load}kW・目標{hours}時間",
-    bcpAvoidVal: "業務停止損失回避額",
-    perOutage: "/停電1回あたり",
-    secTaxTitle: "法人税制優遇",
-    applicableTaxScheme: "適用可能制度",
-    maxTaxSaving: "節税額（最大）",
-    taxSchemeChoiceTitle: "御社の方針で有利な制度が変わります",
-    priorityCashflow: "💰 資金繰り重視",
-    priorityTotal: "📊 総額重視",
-    recImmediate: "推奨：即時償却",
-    recImmediateDesc: "初年度に現金 {firstYear} が戻り、投資回収を早めます（課税の繰延べ。通算 {total}）。手元資金を優先する御社向け。",
-    recTaxCredit: "推奨：税額控除",
-    recTaxCreditDesc: "通常の減価償却に加え、別枠で {credit}（今期実効・上限考慮）を永久に減税。手元資金より総額の最大化を優先する御社向け。",
-    checklistTitle: "手続きチェックリスト",
-    certAlertTitle: "⚠ 工業会証明書の取得可否をメーカーへご確認ください",
-    certAlertDesc: "取得可否で適用制度（A類型 / B類型）が変わります",
-    secEnvTitle: "環境貢献",
-    co2ReductionLabel: "年間CO2削減量",
-    co2Unit: "トン-CO2",
-    cedarTreesLabel: "杉の木換算",
-    cedarTreesUnit: "本/年",
-    cedarDesc: "杉1本＝14kg-CO2/年吸収",
-    footerNoticeTitle: "本診断結果について",
-    footerNotice1: "※本シミュレーションは概算であり、契約金額・投資効果を保証するものではありません。正式なお見積りは現地調査後に弊社よりご提示いたします。",
-    footerNotice2: "※当社製品（パネル・蓄電池）は中国製のため、SII登録に基づく国・自治体の補助金は対象外です。法人のお客様には別枠で税制優遇制度が適用可能です。",
-    footerNotice3: "※税制優遇の適用には事前手続きが必要です（設備取得した事業年度内の認定が必須）。具体的な進め方は税理士・GOパワーまでご相談ください。",
-    mapInstruction0: "👆 屋根の角を順にタップ／クリック",
-    mapInstruction1: "✏️ 続けて2点目をタップ",
-    mapInstruction2: "✏️ あと1点で図形が完成します",
-    mapInstruction3: "✓ {count}点で屋根を囲みました（点をドラッグで微調整可）",
-    mapMeasuredArea: "測定面積",
-    mapAdoptBtn: "この値を採用する →",
-    mapUndoBtn: "↶ 1点戻る",
-    mapClearBtn: "🗑 全クリア",
-    mapCloseBtn: "地図を閉じる",
-    mapGuideTitle: "使い方：",
-    mapGuide1: "地図上で建物の屋根の四隅を順番にタップしてください。3点以上で面積が自動計算されます。複雑な屋根は5〜8点で囲むと精度が上がります。",
-    mapGuideTitle2: "位置調整：",
-    mapGuide2: "打った点（赤い丸）はドラッグで動かせます。少しズレた点を指でつまんで正しい位置にずらせば、面積が自動再計算されます。",
-    mapGuideTitle3: "地図操作：",
-    mapGuide3: "2本指でピンチイン／アウト（ズーム）、ドラッグで移動。地図種別は「ハイブリッド／航空写真／地図」を切替可能。"
-  },
   id: {
     appTitle: "GO Power Simulator II",
-    appSubtitle: "Diagnosis Detail & Penilaian Insentif Pajak Korporasi",
-    versionBadge: "Ver 2.5 Pro",
-    tabInput: "① Input Parameter",
-    tabResult: "② Hasil Diagnosis & Laporan",
+    appSubtitle: "Simulator Kelayakan PLTS Atap & BESS Indonesia",
+    versionBadge: "Ver 2.5 Pro (Indonesia)",
+    tabInput: "① Parameter Simulasi",
+    tabResult: "② Laporan Hasil Diagnosis",
     disclaimerTitle: "Ketentuan Penggunaan GO Power Simulator II",
     disclaimerSub: "Informasi Penting Sebelum Memulai Simulasi",
     disclaimerItem1Title: "Tentang Subsidi Pemerintah / Daerah",
-    disclaimerItem1Desc: "Produk kami (panel surya & baterai BESS) diproduksi di fasilitas bersertifikasi internasional dan tidak bergantung pada skema subsidi SII domestik Jepang.",
-    disclaimerItem2Title: "Tentang Insentif Pajak Korporasi (SME Enhancement Tax)",
-    disclaimerItem2Desc: "Klien korporasi dapat memanfaatkan skema Insentif Peningkatan Manajemen UKM (Tipe A/B) untuk Amortisasi Cepat 100% (即時償却) atau Potongan Pajak langsung hingga 10%.",
+    disclaimerItem1Desc: "Produk kami (panel surya & baterai BESS) diproduksi di fasilitas bersertifikasi internasional dan dirancang untuk efisiensi investasi energi mandiri di Indonesia.",
+    disclaimerItem2Title: "Tentang Insentif Pajak Korporasi",
+    disclaimerItem2Desc: "Klien korporasi dapat memanfaatkan skema Insentif Pajak (seperti percepatan amortisasi atau tax deduction) untuk badan usaha yang memenuhi persyaratan perpajakan.",
     disclaimerItem3Title: "Estimasi & Akurasi Perhitungan",
-    disclaimerItem3Desc: "Simulasi ini dihitung berdasarkan data radiasi matahari dan spesifikasi teknis standar. Seluruh kalkulasi keuangan ditampilkan dalam Rupiah (Rp). Penawaran resmi dan studi kelayakan final akan diberikan setelah survei lokasi.",
+    disclaimerItem3Desc: "Simulasi ini dihitung berdasarkan data radiasi matahari Indonesia dan spesifikasi teknis standar. Seluruh kalkulasi keuangan ditampilkan dalam Rupiah (Rp). Penawaran resmi dan studi kelayakan final akan diberikan setelah survei lokasi.",
     disclaimerBtn: "Saya Memahami Ketentuan & Mulai Simulasi",
     sec1Title: "① Identifikasi Objek & Atap",
     propAddress: "Alamat / Lokasi Properti",
@@ -530,176 +390,47 @@ const TRANSLATIONS = {
     recImmediateDesc: "Arus kas kembali +{firstYear} di tahun pertama (penundaan pajak; total {total}). Sangat cocok untuk mempercepat pengembalian modal awal.",
     recTaxCredit: "Rekomendasi: Potongan Pajak Tetap (税額控除)",
     recTaxCreditDesc: "Pengurangan langsung beban pajak penghasilan sebesar {credit} (potongan permanen). Optimal jika target perusahaan adalah memaksimalkan total efisiensi.",
-    checklistTitle: "Checklist Dokumen & Prosedur Pajak",
+    checklistTitle: "Rekomendasi Prosedur Pajak",
     certAlertTitle: "⚠ Konfirmasi Sertifikat Asosiasi Industri ke Produsen",
     certAlertDesc: "Ketersediaan sertifikat menentukan klasifikasi Tipe A (Otomatis) atau Tipe B (Rencana Investasi)",
-    secEnvTitle: "Kontribusi Lingkungan (ESG & Dekarbonisasi)",
-    co2ReductionLabel: "Reduksi Emisi CO2 Tahunan",
-    co2Unit: "Ton-CO2",
-    cedarTreesLabel: "Ekuivalen Penanaman Pohon",
-    cedarTreesUnit: "Pohon/tahun",
+    deprecTableTitle: "Jadwal Amortisasi & Penghematan Pajak 5 Tahun",
+    tableYear: "Tahun",
+    tableDeprec: "Amortisasi",
+    tableTaxSaving: "Pengurangan Pajak",
+    tableCumSaving: "Akumulasi Penghematan",
+    secEnvTitle: "Kontribusi Lingkungan & Keberlanjutan (ESG)",
+    co2Label: "Pengurangan Emisi CO2 Tahunan",
+    co2Sub: "Ekuivalen Penanaman ~{cedar} Pohon / Tahun",
+    cedarUnit: "Pohon",
     cedarDesc: "1 pohon cedar = menyerap 14 kg CO2/tahun",
     footerNoticeTitle: "Catatan & Ketentuan Diagnosis",
     footerNotice1: "※ Hasil simulasi ini merupakan estimasi teknis & ekonomis, bukan kontrak harga mengikat. Penawaran resmi akan diterbitkan setelah survei lapangan.",
     footerNotice2: "※ Panel surya & sistem baterai kami memiliki efisiensi tinggi kelas industri. Klien korporat berhak atas fasilitas insentif pajak sesuai regulasi yang berlaku.",
     footerNotice3: "※ Pemanfaatan insentif pajak membutuhkan registrasi rencana sebelum/dalam tahun fiskal perolehan aset. Konsultasikan dengan konsultan pajak & tim GO Power.",
+    disclaimerFooter1: "※ Hasil perhitungan di atas merupakan estimasi berdasarkan data radiasi matahari dan asumsi standar.",
+    disclaimerFooter2: "※ Nilai riil dapat bervariasi tergantung sudut kemiringan atap, bayangan sekitar, fluktuasi tarif PLN aktual, dan hasil survei teknis.",
+    disclaimerFooter3: "※ Hubungi perwakilan teknis kami untuk mendapatkan penawaran resmi, analisis kelayakan struktural, dan proposal final.",
+    mapModalTitle: "🛰️ Pengukuran Luas Atap via Citra Satelit",
     mapInstruction0: "👆 Tap / klik sudut-sudut atap bangunan secara berurutan",
     mapInstruction1: "✏️ Lanjutkan dengan mengetuk titik kedua",
     mapInstruction2: "✏️ Tambah 1 titik lagi untuk menutup bidang poligon atap",
     mapInstruction3: "✓ {count} titik atap terpilih (titik merah dapat digeser untuk penyesuaian)",
     mapMeasuredArea: "Luas Terukur",
     mapAdoptBtn: "Gunakan Luas Ini →",
-    mapUndoBtn: "↶ Undo Titik",
-    mapClearBtn: "🗑 Reset Poligon",
-    mapCloseBtn: "Tutup Peta",
+    btnUndoPoint: "↩ Batalkan Titik",
+    btnClearPoints: "🗑️ Hapus Semua Titik",
+    btnConfirmArea: "✓ Simpan Luas Atap ({area} ㎡)",
+    btnCancelMap: "Tutup",
     mapGuideTitle: "Petunjuk:",
     mapGuide1: "Tap sudut-sudut atap pada peta satelit. Luas bidang poligon akan dihitung otomatis saat 3 titik atau lebih terhubung.",
     mapGuideTitle2: "Penyesuaian Posisi:",
     mapGuide2: "Titik merah dapat digeser (drag & drop) dengan jari/kursor untuk menyesuaikan kontur atap secara presisi.",
     mapGuideTitle3: "Navigasi Peta:",
     mapGuide3: "Gunakan 2 jari untuk zoom/geser peta. Anda dapat beralih antara tampilan Satelit, Hibrida, atau Peta Jalan."
-  },
-  en: {
-    appTitle: "GO Power Simulator II",
-    appSubtitle: "Pro Diagnosis & Corporate Tax Incentive Evaluation",
-    versionBadge: "Ver 2.5 Pro",
-    tabInput: "① Simulation Inputs",
-    tabResult: "② Diagnosis Results & Report",
-    disclaimerTitle: "Terms of Use - GO Power Simulator II",
-    disclaimerSub: "Important Information Before Starting Diagnosis",
-    disclaimerItem1Title: "About Government / Local Subsidies",
-    disclaimerItem1Desc: "Our solar panels and BESS battery systems are manufactured under global standards and do not rely on local domestic SII subsidy programs.",
-    disclaimerItem2Title: "Corporate Tax Incentive Scheme (SME Management Enhancement)",
-    disclaimerItem2Desc: "Corporate clients can leverage the Japanese SME Tax Incentive Framework (Type A / B) for 100% Immediate Depreciation (即時償却) or up to 10% direct Tax Credit (税額控除).",
-    disclaimerItem3Title: "Simulation Estimates & Currency Conversion",
-    disclaimerItem3Desc: "This diagnosis is an engineering estimate based on meteorological solar insolation models. Financial calculations are converted flexibly across currencies. Formal quotation and feasibility study are issued following on-site audit.",
-    disclaimerBtn: "I Understand & Start Simulator",
-    sec1Title: "① Property & Roof Identification",
-    propAddress: "Property Address / Location",
-    propAddressPlaceholder: "e.g., Cikarang Industrial Estate / Jakarta / Singapore / Tokyo",
-    buildingTypeLabel: "Facility / Building Type",
-    roofShapeLabel: "Roof Structure / Profile",
-    roofAreaModeLabel: "Roof Measurement Method",
-    modeMap: "🛰️ Satellite Polygon Measurement (Recommended)",
-    modeManual: "✏️ Manual Input",
-    mapTip: "Enter your address, then click below to open satellite imagery and tap roof vertices to measure polygon area in real-time with your client.",
-    btnOpenMap: "🗺️ Launch Satellite Map & Measure",
-    btnGeocoding: "Geocoding address...",
-    mapMeasuredOk: "Satellite measured area: ({area} ㎡). Click again to re-measure if needed.",
-    manualTip: "If you already know the roof area from architectural drawings or site audit, enter the value directly below.",
-    roofAreaLabel: "Roof Area (㎡) — Editable Value",
-    effectiveRoofArea: "Effective Area (Coeff Applied):",
-    panelSheets: "Estimated Solar Modules:",
-    panelUnit: "modules",
-    installedCapacity: "System PV Capacity:",
-    sec2Title: "② Economic Conditions & Power Tariff",
-    monthlyKwhLabel: "Monthly Electricity Consumption (kWh / Month)",
-    monthlyBillLabel: "Monthly Electricity Bill (USD / Month)",
-    electricityRateLabel: "Electricity Tariff (USD / kWh)",
-    plnTariffSelectLabel: "Select PLN Indonesia Tariff Category:",
-    customRateOption: "✏️ Custom Tariff...",
-    elecRateAutoTip: "※ Default tariff set by facility type. Adjust to match actual electricity utility bill.",
-    secRatesSettingTitle: "⚙️ Currency Exchange & Tariff Rate Settings (YEN, USD, IDR)",
-    rateJpyToIdr: "1 JPY ＝ (IDR Rupiah)",
-    rateUsdToIdr: "1 USD ＝ (IDR Rupiah)",
-    rateCalculated: "Exchange Rate Reference:",
-    btnResetRates: "Reset to Default Rates",
-    sec3Title: "③ BCP (Backup & Critical Loads)",
-    bcpTargetHoursLabel: "Target Backup Duration During Blackout (BCP Goal)",
-    hoursUnit: "Hours",
-    importantLoadsLabel: "Critical Equipment Required During Power Outages",
-    customLoadKwLabel: "Total Critical Load (kW) — Auto-calculated or manual override",
-    requiredBatteryCalcLabel: "Required Battery Capacity (kWh)",
-    sec4Title: "④ Corporate Tax Incentive Prerequisites",
-    corpScaleLabel: "Company Scale Classification",
-    isAoiroLabel: "Blue Return Tax Filing Status (Mandatory for Incentive)",
-    isAoiroYes: "Filing Blue Tax Return (Eligible)",
-    isAoiroNo: "White Return / Standard",
-    kogyoCertLabel: "Industrial Association Certificate (Type A Determination)",
-    kogyoCertYes: "Available (Eligible for Type A: 100% Deprec / 10% Credit)",
-    kogyoCertNo: "Unavailable or Pending (Review Type B)",
-    annualProfitLabel: "Estimated Annual Taxable Income (USD)",
-    btnGoToResult: "View Full Diagnosis Report →",
-    sec5Title: "⑤ Product & EPC Price Master (Optional)",
-    masterToggle: "View / Modify Product & EPC Unit Price Master",
-    toggleClose: "▲ Close",
-    toggleOpen: "▼ Show",
-    resultBackBtn: "← Back to Input",
-    companyPlaceholder: "Company Name (e.g. Acme Corp)",
-    btnPptxExport: "Create PowerPoint Presentation (.pptx)",
-    btnPdfExport: "Download PDF Proposal Report",
-    targetProperty: "Property Under Diagnosis",
-    noAddress: "(Address not specified)",
-    overallRank: "Feasibility Rating",
-    rankA: "Highly Recommended",
-    rankB: "High Investment Value",
-    rankC: "BCP Priority Candidate",
-    rankD: "Requires Re-evaluation",
-    cardCapacity: "PV Capacity",
-    cardBattery: "BESS Storage",
-    cardGen: "Annual Solar Output",
-    cardSelfRate: "Self-Consumption",
-    sheetsSub: "{sheets} Panels",
-    batteryUnitSub: "{units} Battery Units",
-    withBatterySub: "Including Battery Storage",
-    secEconTitle: "Economic Feasibility & Savings (in USD $)",
-    annualSaving: "Annual Utility Savings",
-    investmentCost: "Total EPC Investment (Pre-tax)",
-    paybackYears: "Payback Period",
-    afterTax: "Post-Tax Incentive",
-    perYear: "/year",
-    standardBase: "Standard Configuration Base",
-    chartTitle: "20-Year Projected Cumulative Cash Flow (USD)",
-    yearUnit: "Year",
-    cumProfit20: "20-Year Cumulative Profit: ",
-    withTaxProfit: "With Tax Incentives: ",
-    secBcpTitle: "BCP (Business Continuity Plan) Value",
-    recBatteryCap: "Recommended Storage Capacity",
-    recBatteryMin: "Required Min: {req} kWh",
-    backupHoursLabel: "Emergency Backup Duration",
-    backupHoursSub: "Critical Load {load} kW · Target {hours} h",
-    bcpAvoidVal: "Avoided Outage Loss Value",
-    perOutage: "/blackout incident",
-    secTaxTitle: "Corporate Tax Incentives",
-    applicableTaxScheme: "Applicable Tax Incentive Program",
-    maxTaxSaving: "Maximum Tax Savings",
-    taxSchemeChoiceTitle: "Strategy Selection Based on Corporate Financial Goals",
-    priorityCashflow: "💰 Cash Flow / Liquidity Priority",
-    priorityTotal: "📊 Maximum Net Tax Savings Priority",
-    recImmediate: "Recommended: Immediate Depreciation (即時償却)",
-    recImmediateDesc: "Cash refund of +{firstYear} in Year 1 (tax deferral; total {total}). Recommended for companies prioritizing rapid capital recovery.",
-    recTaxCredit: "Recommended: Direct Tax Credit (税額控除)",
-    recTaxCreditDesc: "Direct corporate tax deduction of {credit} (permanent tax cut). Optimal for businesses maximizing long-term net savings.",
-    checklistTitle: "Procedure & Filing Checklist",
-    certAlertTitle: "⚠ Confirm Industrial Association Certificate with Manufacturer",
-    certAlertDesc: "Certificate availability dictates Type A (streamlined) vs Type B (investment plan) scheme",
-    secEnvTitle: "Environmental & ESG Contribution",
-    co2ReductionLabel: "Annual CO2 Emission Reduction",
-    co2Unit: "Tons-CO2",
-    cedarTreesLabel: "Cedar Trees Equivalent",
-    cedarTreesUnit: "Trees/year",
-    cedarDesc: "1 cedar tree absorbs approx. 14 kg CO2/year",
-    footerNoticeTitle: "About This Diagnosis",
-    footerNotice1: "※ This simulation is an engineering estimate with flexible currency rates and does not constitute a binding financial warranty. Official proposal is presented after on-site audit.",
-    footerNotice2: "※ Our commercial-grade PV and BESS hardware qualify corporate clients for generous corporate tax incentive programs under applicable law.",
-    footerNotice3: "※ Applying for tax incentives requires pre-filing within the asset acquisition fiscal year. Consult your tax accountant and GO Power specialists.",
-    mapInstruction0: "👆 Tap / click the corners of the roof in order",
-    mapInstruction1: "✏️ Continue by tapping the 2nd vertex",
-    mapInstruction2: "✏️ Add 1 more point to complete the roof polygon",
-    mapInstruction3: "✓ {count} points selected (drag markers to fine-tune shape)",
-    mapMeasuredArea: "Measured Area",
-    mapAdoptBtn: "Adopt This Area →",
-    mapUndoBtn: "↶ Undo Point",
-    mapClearBtn: "🗑 Clear All",
-    mapCloseBtn: "Close Map",
-    mapGuideTitle: "How to use:",
-    mapGuide1: "Tap the corners of the building roof sequentially. Polygon area is calculated automatically when 3 or more points are placed.",
-    mapGuideTitle2: "Fine Adjustment:",
-    mapGuide2: "You can drag and drop any red marker to match the exact roof profile. The area recalculates automatically.",
-    mapGuideTitle3: "Navigation:",
-    mapGuide3: "Pinch or scroll to zoom, drag to pan. Switch between Hybrid, Satellite, or Roadmap layers freely."
   }
 };
+TRANSLATIONS.ja = TRANSLATIONS.id;
+TRANSLATIONS.en = TRANSLATIONS.id;
 
 // ============================================================
 // フォーマット関数 (JPY / IDR / USD 動的レート対応)
@@ -834,15 +565,16 @@ const SOLAR_RADIATION_BY_PREF = {
 // ============================================================
 
 function getInsolation(pref) {
-  return SOLAR_RADIATION_BY_PREF[pref] || 3.75;
+  if (SOLAR_RADIATION_BY_PREF[pref]) return SOLAR_RADIATION_BY_PREF[pref];
+  return 4.5; // Standar Rata-rata Radiasi Matahari Indonesia (kWh/m²/hari)
 }
 
 function getPrefecture(addr) {
-  if (!addr) return '愛知県';
+  if (!addr) return 'Indonesia';
   for (const p of Object.keys(SOLAR_RADIATION_BY_PREF)) {
     if (addr.includes(p)) return p;
   }
-  return '愛知県';
+  return addr.length > 25 ? addr.slice(0, 25) + '...' : addr;
 }
 
 function calcCapacity(roofArea, roofShape) {
@@ -1100,8 +832,8 @@ async function geocodeAddress(address) {
   });
 }
 
-function MapDrawingPanel({ initialCenter, onAreaConfirmed, onCancel, lang = 'ja' }) {
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+function MapDrawingPanel({ initialCenter, onAreaConfirmed, onCancel, lang = 'id' }) {
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.id;
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const polygonRef = useRef(null);
@@ -1257,13 +989,10 @@ function MapDrawingPanel({ initialCenter, onAreaConfirmed, onCancel, lang = 'ja'
 // ============================================================
 
 function App() {
-  const [lang, setLang] = useState(() => {
-    try {
-      return localStorage.getItem('gopower_lang') || 'ja';
-    } catch(e) {
-      return 'ja';
-    }
-  });
+  const lang = 'id';
+  try {
+    localStorage.setItem('gopower_lang', 'id');
+  } catch(e) {}
 
   // 動的為替レート設定 (localStorage永続化)
   const [jpyToIdrRate, setJpyToIdrRate] = useState(() => {
@@ -1294,14 +1023,7 @@ function App() {
     try { localStorage.setItem('gopower_usd_to_idr', r); } catch(e) {}
   };
 
-  const changeLanguage = (newLang) => {
-    setLang(newLang);
-    try {
-      localStorage.setItem('gopower_lang', newLang);
-    } catch(e) {}
-  };
-
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+  const t = TRANSLATIONS.id;
 
   const [showDisclaimer, setShowDisclaimer] = useState(true);
   const [activeTab, setActiveTab] = useState('input');
@@ -1522,11 +1244,9 @@ function App() {
           <div className="disclaimer-box">
             <div className="flex items-center justify-between mb-4">
               <img src={GOPOWER_LOGO} alt="GO Power" style={{ height: 40, width: 'auto' }} />
-              <div className="lang-switcher">
-                <button className={`lang-btn ${lang === 'id' ? 'active' : ''}`} onClick={() => changeLanguage('id')}>🇮🇩 ID</button>
-                <button className={`lang-btn ${lang === 'ja' ? 'active' : ''}`} onClick={() => changeLanguage('ja')}>🇯🇵 JA</button>
-                <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => changeLanguage('en')}>🇬🇧 EN</button>
-              </div>
+              <span className="text-xs font-bold text-red-800 bg-red-50 border border-red-200 px-3 py-1 rounded-full">
+                🇮🇩 Versi Indonesia
+              </span>
             </div>
             <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--gp-red)' }}>
               {t.disclaimerTitle}
@@ -1573,11 +1293,9 @@ function App() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="lang-switcher">
-              <button className={`lang-btn ${lang === 'id' ? 'active' : ''}`} onClick={() => changeLanguage('id')}>🇮🇩 ID</button>
-              <button className={`lang-btn ${lang === 'ja' ? 'active' : ''}`} onClick={() => changeLanguage('ja')}>🇯🇵 JA</button>
-              <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => changeLanguage('en')}>🇬🇧 EN</button>
-            </div>
+            <span className="text-xs font-bold text-red-800 bg-red-50 border border-red-200 px-3 py-1 rounded-full">
+              🇮🇩 Indonesia
+            </span>
             <span className="text-xs px-3 py-1 rounded-full font-bold" style={{ background: 'var(--gp-teal)', color: 'white' }}>
               {t.versionBadge}
             </span>
@@ -1676,8 +1394,8 @@ function App() {
 // ============================================================
 
 function InputSection(props) {
-  const { lang = 'ja', jpyToIdrRate = 110, setJpyToIdrRate, usdToIdrRate = 17750, setUsdToIdrRate } = props;
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+  const { lang = 'id', jpyToIdrRate = 110, setJpyToIdrRate, usdToIdrRate = 17750, setUsdToIdrRate } = props;
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.id;
   const [showMaster, setShowMaster] = useState(false);
   const [showRatesSetting, setShowRatesSetting] = useState(false);
 
@@ -2503,8 +2221,8 @@ function ProductMasterField({ label, value, onChange }) {
 // 診断結果セクション (ResultSection Component)
 // ============================================================
 
-function ResultSection({ address, buildingType, result, cashflowData, isCorps, loadKw, bcpHours, onPdfExport, onBack, lang = 'ja', jpyToIdrRate = 110, usdToIdrRate = 17750 }) {
-  const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+function ResultSection({ address, buildingType, result, cashflowData, isCorps, loadKw, bcpHours, onPdfExport, onBack, lang = 'id', jpyToIdrRate = 110, usdToIdrRate = 17750 }) {
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.id;
   const [companyName, setCompanyName] = useState('');
   const [taxPriority, setTaxPriority] = useState('cashflow');
 
