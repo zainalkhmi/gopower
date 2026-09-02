@@ -313,8 +313,11 @@ const TRANSLATIONS = {
     panelUnit: "枚",
     installedCapacity: "搭載容量：",
     sec2Title: "② 経済条件（電気代・単価設定）",
+    monthlyKwhLabel: "月間電力使用量（kWh/月）",
     monthlyBillLabel: "月額電気代（円/月・税込概算）",
     electricityRateLabel: "電気料金単価（円/kWh）",
+    plnTariffSelectLabel: "インドネシアPLN料金プラン選択:",
+    customRateOption: "✏️ カスタム入力...",
     elecRateAutoTip: "※ 建物種別に応じて初期値を設定。実際の請求書に合わせて調整してください。",
     secRatesSettingTitle: "⚙️ 為替レート・通貨換算設定（YEN / USD / IDR）",
     rateJpyToIdr: "1 JPY ＝ (IDR Rupiah)",
@@ -326,6 +329,7 @@ const TRANSLATIONS = {
     hoursUnit: "時間",
     importantLoadsLabel: "停電時に維持したい重要設備（複数選択可）",
     customLoadKwLabel: "合計重要負荷（kW） — 自動計算または直接調整",
+    requiredBatteryCalcLabel: "蓄電池必要容量（kWh）",
     sec4Title: "④ 法人税制優遇の前提条件",
     corpScaleLabel: "企業規模区分",
     isAoiroLabel: "青色申告法人（税制優遇の必須要件）",
@@ -449,9 +453,12 @@ const TRANSLATIONS = {
     panelUnit: "lembar",
     installedCapacity: "Kapasitas Pembangkit (PV):",
     sec2Title: "② Kondisi Ekonomi & Tarif Listrik",
+    monthlyKwhLabel: "Konsumsi Listrik Bulanan (kWh / Bulan)",
     monthlyBillLabel: "Tagihan Listrik Bulanan (Rp / Bulan)",
     electricityRateLabel: "Tarif Listrik per kWh (Rp / kWh)",
-    elecRateAutoTip: "※ Nilai default disesuaikan dengan jenis fasilitas. Silakan sesuaikan dengan tagihan listrik aktual.",
+    plnTariffSelectLabel: "Pilih Golongan Tarif Resmi PLN Indonesia:",
+    customRateOption: "✏️ Tarif Kustom / Input Manual (Rp)...",
+    elecRateAutoTip: "※ Pilih golongan tarif resmi PLN Indonesia atau masukkan nominal per kWh secara manual.",
     secRatesSettingTitle: "⚙️ Pengaturan Kurs & Tarif Listrik (YEN, USD, IDR)",
     rateJpyToIdr: "Kurs 1 JPY ke Rupiah (Rp)",
     rateUsdToIdr: "Kurs 1 USD ke Rupiah (Rp)",
@@ -462,6 +469,7 @@ const TRANSLATIONS = {
     hoursUnit: "Jam",
     importantLoadsLabel: "Peralatan Penting yang Wajib Menyala Saat Mati Listrik",
     customLoadKwLabel: "Total Beban Kritis (kW) — Terhitung otomatis atau edit manual",
+    requiredBatteryCalcLabel: "Kebutuhan Kapasitas Baterai (kWh)",
     sec4Title: "④ Parameter Insentif Pajak Korporasi",
     corpScaleLabel: "Klasifikasi Skala Perusahaan",
     isAoiroLabel: "Status SPT Pajak Biru (Syarat Insentif Pajak)",
@@ -585,8 +593,11 @@ const TRANSLATIONS = {
     panelUnit: "modules",
     installedCapacity: "System PV Capacity:",
     sec2Title: "② Economic Conditions & Power Tariff",
+    monthlyKwhLabel: "Monthly Electricity Consumption (kWh / Month)",
     monthlyBillLabel: "Monthly Electricity Bill (USD / Month)",
     electricityRateLabel: "Electricity Tariff (USD / kWh)",
+    plnTariffSelectLabel: "Select PLN Indonesia Tariff Category:",
+    customRateOption: "✏️ Custom Tariff...",
     elecRateAutoTip: "※ Default tariff set by facility type. Adjust to match actual electricity utility bill.",
     secRatesSettingTitle: "⚙️ Currency Exchange & Tariff Rate Settings (YEN, USD, IDR)",
     rateJpyToIdr: "1 JPY ＝ (IDR Rupiah)",
@@ -598,6 +609,7 @@ const TRANSLATIONS = {
     hoursUnit: "Hours",
     importantLoadsLabel: "Critical Equipment Required During Power Outages",
     customLoadKwLabel: "Total Critical Load (kW) — Auto-calculated or manual override",
+    requiredBatteryCalcLabel: "Required Battery Capacity (kWh)",
     sec4Title: "④ Corporate Tax Incentive Prerequisites",
     corpScaleLabel: "Company Scale Classification",
     isAoiroLabel: "Blue Return Tax Filing Status (Mandatory for Incentive)",
@@ -791,6 +803,19 @@ const ELECTRICITY_RATES = {
   '個人宅_夜型': 31
 };
 
+// Golongan Tarif Resmi PLN Indonesia (Tariff Adjustment)
+const PLN_TARIFFS_ID = [
+  { code: 'B-2', name: 'Bisnis Menengah (B-2)', power: '6.600 VA – 200 kVA', rate: 1444.70, desc: 'Ruko, kantor, toko besar, restoran', isResidential: false },
+  { code: 'B-3', name: 'Bisnis Besar (B-3)', power: '> 200 kVA (TM)', rate: 1114.74, desc: 'Mall, hotel bintang, gedung bertingkat', isResidential: false },
+  { code: 'I-3', name: 'Industri Menengah (I-3)', power: '> 200 kVA (TM)', rate: 1114.74, desc: 'Pabrik manufaktur, pergudangan, perakitan', isResidential: false },
+  { code: 'I-4', name: 'Industri Besar (I-4)', power: '≥ 30.000 kVA (TT)', rate: 996.74, desc: 'Pabrik semen, kimia, peleburan baja', isResidential: false },
+  { code: 'I-2', name: 'Industri Kecil (I-2)', power: '450 VA – 14 kVA', rate: 1444.70, desc: 'Industri rumahan, konveksi, bengkel', isResidential: false },
+  { code: 'R-1', name: 'Rumah Tangga Mampu (R-1)', power: '1.300 VA & 2.200 VA', rate: 1444.70, desc: 'Rumah tinggal daya 1.300 - 2.200 VA', isResidential: true },
+  { code: 'R-2', name: 'Rumah Tangga Besar (R-2/R-3)', power: '≥ 3.500 VA', rate: 1699.53, desc: 'Rumah tinggal menengah/besar, villa', isResidential: true },
+  { code: 'P-1', name: 'Kantor Pemerintah (P-1)', power: '6.600 VA – 200 kVA', rate: 1699.53, desc: 'Instansi / gedung kantor pemerintah', isResidential: false },
+  { code: 'P-2', name: 'Kantor Pemerintah Besar (P-2)', power: '> 200 kVA (TM)', rate: 1522.88, desc: 'Kompleks kementerian / dinas besar', isResidential: false }
+];
+
 const SOLAR_RADIATION_BY_PREF = {
   '北海道': 3.45, '青森県': 3.38, '岩手県': 3.52, '宮城県': 3.65, '秋田県': 3.25,
   '山形県': 3.42, '福島県': 3.68, '茨城県': 3.75, '栃木県': 3.72, '群馬県': 3.82,
@@ -841,12 +866,13 @@ function calcSelfConsumptionRate(buildingType, batteryKwh, capacityKw) {
 }
 
 function calcRequiredBatteryKwh(loadKw, bcpHours) {
-  return (loadKw * bcpHours) / 0.8;
+  return loadKw * bcpHours;
 }
 
 function calcRecommendedBatteryKwh(buildingType, requiredKwh) {
+  if (requiredKwh <= 0) return 0;
   const unitKwh = DEFAULT_PRODUCT_MASTER.batteryUnitKwh;
-  const units = Math.max(Math.ceil(requiredKwh / unitKwh), 1);
+  const units = Math.max(Math.ceil(requiredKwh / unitKwh), 0);
   return units * unitKwh;
 }
 
@@ -1294,8 +1320,30 @@ function App() {
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeError, setGeocodeError] = useState(null);
 
-  const [monthlyBill, setMonthlyBill] = useState(150000);
   const [electricityRate, setElectricityRate] = useState(22);
+  const [monthlyKwh, setMonthlyKwh] = useState(10000);
+  const [monthlyBill, setMonthlyBill] = useState(220000);
+
+  const handleElectricityRateChange = (newRate) => {
+    setElectricityRate(newRate);
+    if (monthlyKwh > 0 && newRate > 0) {
+      setMonthlyBill(Math.round(monthlyKwh * newRate));
+    }
+  };
+
+  const handleMonthlyBillChange = (newBill) => {
+    setMonthlyBill(newBill);
+    if (electricityRate > 0 && newBill > 0) {
+      setMonthlyKwh(Math.round(newBill / electricityRate));
+    }
+  };
+
+  const handleMonthlyKwhChange = (newKwh) => {
+    setMonthlyKwh(newKwh);
+    if (electricityRate > 0 && newKwh > 0) {
+      setMonthlyBill(Math.round(newKwh * electricityRate));
+    }
+  };
 
   const [importantLoads, setImportantLoads] = useState({
     '冷蔵庫': true, '制御盤': true, '通信': false,
@@ -1314,8 +1362,21 @@ function App() {
   const [effectiveTaxRate, setEffectiveTaxRate] = useState(0.30);
 
   useEffect(() => {
-    setElectricityRate(ELECTRICITY_RATES[buildingType] || 22);
-  }, [buildingType]);
+    if (lang === 'id') {
+      const defaultIdrRate = buildingType.startsWith('工場') ? 1114.74 : (buildingType.startsWith('個人宅') ? 1699.53 : 1444.70);
+      const newRate = defaultIdrRate / jpyToIdrRate;
+      setElectricityRate(newRate);
+      if (monthlyKwh > 0) {
+        setMonthlyBill(Math.round(monthlyKwh * newRate));
+      }
+    } else {
+      const newRate = ELECTRICITY_RATES[buildingType] || 22;
+      setElectricityRate(newRate);
+      if (monthlyKwh > 0) {
+        setMonthlyBill(Math.round(monthlyKwh * newRate));
+      }
+    }
+  }, [buildingType, lang]);
 
   useEffect(() => {
     if (buildingType.startsWith('個人宅')) {
@@ -1365,7 +1426,9 @@ function App() {
 
     const requiredBattery = calcRequiredBatteryKwh(loadKw, bcpHours);
     const recommendedBattery = calcRecommendedBatteryKwh(buildingType, requiredBattery);
-    const actualBatteryKwh = Math.ceil(recommendedBattery / DEFAULT_PRODUCT_MASTER.batteryUnitKwh) * DEFAULT_PRODUCT_MASTER.batteryUnitKwh;
+    const actualBatteryKwh = recommendedBattery > 0 
+      ? Math.ceil(recommendedBattery / DEFAULT_PRODUCT_MASTER.batteryUnitKwh) * DEFAULT_PRODUCT_MASTER.batteryUnitKwh 
+      : 0;
 
     const selfConsumptionRate = calcSelfConsumptionRate(buildingType, actualBatteryKwh, capacityKw);
     const annualSaving = calcAnnualSaving(annualGen, selfConsumptionRate, electricityRate, monthlyBill);
@@ -1380,7 +1443,8 @@ function App() {
     const backupHours = Math.min(Math.max(rawBackupHours, 0), bcpHours);
 
     let taxScheme = null;
-    if (isCorps) {
+    const isResidentialProperty = !isCorps || buildingType.startsWith('個人宅');
+    if (!isResidentialProperty) {
       taxScheme = selectTaxScheme({
         investment, capital, isAoiro, profit,
         jikashohi: selfConsumptionRate, kogyoshomeisho, effectiveTaxRate
@@ -1559,9 +1623,9 @@ function App() {
             geocoding={geocoding}
             geocodeError={geocodeError}
             onOpenMap={handleOpenMap}
-            onAreaConfirmed={handleAreaConfirmed}
-            monthlyBill={monthlyBill} setMonthlyBill={setMonthlyBill}
-            electricityRate={electricityRate} setElectricityRate={setElectricityRate}
+            monthlyBill={monthlyBill} setMonthlyBill={handleMonthlyBillChange}
+            monthlyKwh={monthlyKwh} setMonthlyKwh={handleMonthlyKwhChange}
+            electricityRate={electricityRate} setElectricityRate={handleElectricityRateChange}
             importantLoads={importantLoads} setImportantLoads={setImportantLoads}
             loadKw={loadKw} setLoadKw={setLoadKw}
             bcpHours={bcpHours} setBcpHours={setBcpHours}
@@ -1621,7 +1685,7 @@ function InputSection(props) {
 
   // Dynamic Conversions
   const idrBill = Math.round(props.monthlyBill * jpyToIdrRate);
-  const idrRate = Math.round(props.electricityRate * jpyToIdrRate);
+  const idrRate = Math.round(props.electricityRate * jpyToIdrRate * 100) / 100;
 
   const usdBill = Math.round((props.monthlyBill * jpyToIdrRate) / usdToIdrRate);
   const usdRate = parseFloat(((props.electricityRate * jpyToIdrRate) / usdToIdrRate).toFixed(3));
@@ -1824,23 +1888,81 @@ function InputSection(props) {
 
         <div className="grid grid-cols-12 gap-3">
           <div className="col-span-12 md:col-span-6">
-            <label className="block text-sm font-semibold mb-1">{t.monthlyBillLabel}</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-semibold">{t.monthlyBillLabel}</label>
+              {lang === 'id' && (
+                <span className="text-[11px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 font-semibold">
+                  🔄 Sinkron Otomatis
+                </span>
+              )}
+            </div>
             {lang === 'id' ? (
-              <div>
-                <input
-                  type="number"
-                  step="500000"
-                  className="gp-input font-bold"
-                  value={idrBill}
-                  onChange={(e) => {
-                    const val = parseFloat(e.target.value) || 0;
-                    props.setMonthlyBill(Math.round(val / jpyToIdrRate));
-                  }}
-                />
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="rate-pill">Rp {idrBill.toLocaleString('id-ID')} / bln</span>
+              <div className="space-y-2">
+                {/* Input Konsumsi Listrik Bulanan (kWh / Bulan) */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-gray-700">
+                      ⚡ {t.monthlyKwhLabel}
+                    </label>
+                    <span className="text-[11px] text-gray-500">
+                      Dari Rekening / Meteran PLN
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="100"
+                      className="gp-input font-bold pr-16"
+                      value={props.monthlyKwh || ''}
+                      placeholder="Contoh: 10000"
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value) || 0;
+                        props.setMonthlyKwh(val);
+                      }}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-500 pointer-events-none">
+                      kWh / bln
+                    </span>
+                  </div>
+                </div>
+
+                {/* Input Tagihan Listrik Bulanan (Rp / Bulan) */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-semibold text-gray-700">
+                      💰 Tagihan Listrik Bulanan (Rp / Bulan)
+                    </label>
+                    <span className="text-[11px] text-emerald-700 font-medium">
+                      = {props.monthlyKwh ? props.monthlyKwh.toLocaleString('id-ID') : 0} kWh × Rp {idrRate.toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="100000"
+                      className="gp-input font-bold pr-20"
+                      value={idrBill || ''}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value) || 0;
+                        props.setMonthlyBill(Math.round(val / jpyToIdrRate));
+                      }}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-500 pointer-events-none">
+                      Rp / Bulan
+                    </span>
+                  </div>
+                </div>
+
+                {/* Pill Konversi Mata Uang */}
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  <span className="rate-pill font-bold text-blue-900 bg-blue-50 border border-blue-200">
+                    Rp {idrBill.toLocaleString('id-ID')} / bln
+                  </span>
                   <span className="rate-pill">≈ ¥{Math.round(props.monthlyBill).toLocaleString()}</span>
                   <span className="rate-pill">≈ ${usdBill.toLocaleString('en-US')}</span>
+                </div>
+                <div className="text-[11px] text-gray-500 italic">
+                  💡 Tagihan bulanan terhitung otomatis memakai harga kWh yang diinput di samping: <b>Rp {idrRate.toLocaleString('id-ID')} / kWh</b>
                 </div>
               </div>
             ) : (lang === 'en' ? (
@@ -1880,23 +2002,134 @@ function InputSection(props) {
             ))}
           </div>
           <div className="col-span-12 md:col-span-6">
-            <label className="block text-sm font-semibold mb-1">{t.electricityRateLabel}</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-semibold">{t.electricityRateLabel}</label>
+              {lang === 'id' && (
+                <span className="text-[11px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-semibold">
+                  ⚡ Tarif Resmi PLN
+                </span>
+              )}
+            </div>
             {lang === 'id' ? (
-              <div>
-                <input
-                  type="number"
-                  step="10"
-                  className="gp-input font-bold"
-                  value={idrRate}
-                  onChange={(e) => {
-                    const val = parseFloat(e.target.value) || 0;
-                    props.setElectricityRate(val / jpyToIdrRate);
-                  }}
-                />
+              <div className="space-y-2">
+                {/* Dropdown Pilihan Golongan PLN */}
+                <div>
+                  <select
+                    className="gp-input text-xs md:text-sm font-bold bg-white text-gray-800 border-amber-300 focus:border-amber-600 mb-1"
+                    value={
+                      PLN_TARIFFS_ID.find(t => Math.abs(idrRate - t.rate) < 2)?.code || 'custom'
+                    }
+                    onChange={(e) => {
+                      const sel = PLN_TARIFFS_ID.find(t => t.code === e.target.value);
+                      if (sel) {
+                        props.setElectricityRate(sel.rate / jpyToIdrRate);
+                        if (sel.isResidential) {
+                          props.setIsCorps(false);
+                          if (!props.buildingType.startsWith('個人宅')) {
+                            props.setBuildingType('個人宅_昼型');
+                          }
+                        } else {
+                          props.setIsCorps(true);
+                          if (props.buildingType.startsWith('個人宅')) {
+                            props.setBuildingType('工場倉庫_冷蔵あり');
+                          }
+                        }
+                      }
+                    }}
+                  >
+                    <option value="" disabled>-- {t.plnTariffSelectLabel} --</option>
+                    {PLN_TARIFFS_ID.map(tariff => (
+                      <option key={tariff.code} value={tariff.code}>
+                        [{tariff.code}] {tariff.name} ({tariff.power}) — Rp {tariff.rate.toLocaleString('id-ID')}/kWh
+                      </option>
+                    ))}
+                    <option value="custom">{t.customRateOption}</option>
+                  </select>
+                </div>
+
+                {/* Quick Selection Buttons */}
+                <div className="flex flex-wrap gap-1">
+                  {PLN_TARIFFS_ID.slice(0, 4).map(tariff => {
+                    const isSelected = Math.abs(idrRate - tariff.rate) < 2;
+                    return (
+                      <button
+                        key={tariff.code}
+                        type="button"
+                        onClick={() => {
+                          props.setElectricityRate(tariff.rate / jpyToIdrRate);
+                          if (tariff.isResidential) {
+                            props.setIsCorps(false);
+                            if (!props.buildingType.startsWith('個人宅')) {
+                              props.setBuildingType('個人宅_昼型');
+                            }
+                          } else {
+                            props.setIsCorps(true);
+                            if (props.buildingType.startsWith('個人宅')) {
+                              props.setBuildingType('工場倉庫_冷蔵あり');
+                            }
+                          }
+                        }}
+                        className={`text-[11px] px-2 py-0.5 rounded border transition font-semibold ${
+                          isSelected
+                            ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
+                            : 'bg-white hover:bg-amber-50 text-gray-700 border-gray-300'
+                        }`}
+                        title={tariff.desc}
+                      >
+                        {tariff.code}: Rp {tariff.rate.toLocaleString('id-ID')}
+                      </button>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const r2 = PLN_TARIFFS_ID.find(t => t.code === 'R-2');
+                      if (r2) {
+                        props.setElectricityRate(r2.rate / jpyToIdrRate);
+                        props.setIsCorps(false);
+                        if (!props.buildingType.startsWith('個人宅')) {
+                          props.setBuildingType('個人宅_昼型');
+                        }
+                      }
+                    }}
+                    className={`text-[11px] px-2 py-0.5 rounded border transition font-semibold ${
+                      Math.abs(idrRate - 1699.53) < 2
+                        ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
+                        : 'bg-white hover:bg-amber-50 text-gray-700 border-gray-300'
+                    }`}
+                  >
+                    🏠 R-2/R-3: Rp 1.700 (Rumah)
+                  </button>
+                </div>
+
+                {/* Input Manual Nilai Tarif */}
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.1"
+                    className="gp-input font-bold pr-20"
+                    value={idrRate || ''}
+                    placeholder="Contoh: 1444.7"
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                      props.setElectricityRate(val / jpyToIdrRate);
+                    }}
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-500 pointer-events-none">
+                    Rp / kWh
+                  </span>
+                </div>
+
+                {/* Konversi Pill */}
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="rate-pill">Rp {idrRate.toLocaleString('id-ID')} / kWh</span>
+                  <span className="rate-pill font-bold text-amber-900 bg-amber-50 border border-amber-200">
+                    Rp {idrRate.toLocaleString('id-ID')} / kWh
+                  </span>
                   <span className="rate-pill">≈ ¥{props.electricityRate.toFixed(1)}</span>
                   <span className="rate-pill">≈ ${usdRate}</span>
+                </div>
+                <div className="text-[11px] text-gray-500 italic mt-0.5">
+                  {t.elecRateAutoTip}
                 </div>
               </div>
             ) : (lang === 'en' ? (
@@ -1945,10 +2178,11 @@ function InputSection(props) {
           <div className="col-span-12 md:col-span-6">
             <label className="block text-sm font-semibold mb-1">{t.bcpTargetHoursLabel}</label>
             <select
-              className="gp-input"
+              className="gp-input font-bold"
               value={props.bcpHours}
               onChange={(e) => props.setBcpHours(parseFloat(e.target.value))}
             >
+              <option value="0">0 {t.hoursUnit} ({lang === 'id' ? 'Tanpa Baterai' : (lang === 'en' ? 'No Battery' : '蓄電池なし')})</option>
               <option value="4">4 {t.hoursUnit}</option>
               <option value="8">8 {t.hoursUnit}</option>
               <option value="12">12 {t.hoursUnit}</option>
@@ -1975,23 +2209,100 @@ function InputSection(props) {
             </div>
           </div>
 
-          <div className="col-span-12">
+          <div className="col-span-12 md:col-span-6">
             <label className="block text-sm font-semibold mb-1">{t.customLoadKwLabel}</label>
-            <input
-              type="number"
-              step="0.1"
-              className="gp-input"
-              value={props.loadKw}
-              onChange={(e) => props.setLoadKw(parseFloat(e.target.value) || 0)}
-            />
+            <div className="relative">
+              <input
+                type="number"
+                step="0.1"
+                className="gp-input font-bold pr-14"
+                value={props.loadKw}
+                onChange={(e) => props.setLoadKw(parseFloat(e.target.value) || 0)}
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-500 pointer-events-none">
+                kW
+              </span>
+            </div>
+            <div className="text-[11px] text-gray-500 mt-1">
+              {lang === 'id' ? 'Total konsumsi daya peralatan esensial saat darurat' : 'Total critical loads power requirement'}
+            </div>
+          </div>
+
+          <div className="col-span-12 md:col-span-6">
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-semibold text-gray-800">
+                🔋 {t.requiredBatteryCalcLabel}
+              </label>
+              <span className="text-[11px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-semibold">
+                Terhitung Otomatis
+              </span>
+            </div>
+            <div className="relative">
+              <input
+                type="number"
+                readOnly
+                className="gp-input font-bold text-base bg-emerald-50/50 text-emerald-900 border-emerald-300 pr-16"
+                value={parseFloat((props.loadKw * props.bcpHours).toFixed(2))}
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-emerald-800 pointer-events-none">
+                kWh
+              </span>
+            </div>
+            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+              <span className="rate-pill font-bold bg-emerald-50 border border-emerald-200 text-emerald-900">
+                {(props.loadKw * props.bcpHours).toFixed(1)} kWh
+              </span>
+              <span className="rate-pill bg-gray-50 border border-gray-200 text-gray-700">
+                {props.bcpHours === 0 ? (
+                  lang === 'id' ? '0 Unit (Sistem On-Grid Tanpa Baterai)' : (lang === 'en' ? '0 Units (Grid-Tied, No Battery)' : '0台（蓄電池なし系統連系）')
+                ) : (
+                  `≈ ${Math.max(1, Math.ceil((props.loadKw * props.bcpHours) / (props.productMaster?.batteryUnitKwh || 16.07)))} Unit Baterai (@${(props.productMaster?.batteryUnitKwh || 16.07).toFixed(1)} kWh)`
+                )}
+              </span>
+            </div>
+            <div className="text-[11px] text-gray-600 italic mt-1">
+              {props.bcpHours === 0 ? (
+                lang === 'id'
+                  ? '💡 Target proteksi 0 Jam: Sistem beroperasi murni sebagai PLTS On-Grid tanpa penyimpanan baterai (BESS).'
+                  : (lang === 'en' 
+                    ? '💡 0 Hours target: Pure grid-tied PV system without battery storage.'
+                    : '💡 目標0時間：蓄電池（BESS）なしの太陽光オングリッド系統連系運用。')
+              ) : (
+                `💡 Rumus: ${props.loadKw} kW (Beban Kritis) × ${props.bcpHours} ${t.hoursUnit} (Durasi Proteksi) = ${(props.loadKw * props.bcpHours).toFixed(1)} kWh`
+              )}
+            </div>
           </div>
         </div>
       </section>
 
       {/* ④ 法人税制優遇 */}
-      {props.isCorps && (
+      {props.isCorps && !props.buildingType.startsWith('個人宅') ? (
         <section className="gp-card p-5">
-          <h2 className="gp-section-title">{t.sec4Title}</h2>
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <h2 className="gp-section-title mb-0">{t.sec4Title}</h2>
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="text-gray-500 font-medium">Tipe Properti:</span>
+              <button
+                type="button"
+                onClick={() => props.setIsCorps(true)}
+                className="px-2.5 py-1 rounded-md font-semibold bg-emerald-600 text-white shadow-xs text-xs"
+              >
+                🏢 Korporasi (PT/CV)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  props.setIsCorps(false);
+                  if (!props.buildingType.startsWith('個人宅')) {
+                    props.setBuildingType('個人宅_昼型');
+                  }
+                }}
+                className="px-2.5 py-1 rounded-md font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs transition"
+              >
+                🏠 Rumah Tinggal
+              </button>
+            </div>
+          </div>
           <div className="grid grid-cols-12 gap-3">
             <div className="col-span-12 md:col-span-6">
               <label className="block text-sm font-semibold mb-1">{t.corpScaleLabel}</label>
@@ -2077,6 +2388,44 @@ function InputSection(props) {
                   onChange={(e) => props.setProfit(parseFloat(e.target.value) || 0)}
                 />
               ))}
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section className="gp-card p-5 bg-amber-50/80 border border-amber-200 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="text-2xl p-2 bg-amber-100 rounded-lg">🏠</div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <h3 className="text-base font-bold text-amber-950">
+                  {lang === 'id' ? 'Kategori Rumah Tangga (Non-Korporasi)' : 'Residential / Non-Corporate Category'}
+                </h3>
+                <span className="text-xs bg-amber-200/80 text-amber-900 px-2.5 py-0.5 rounded-full font-bold border border-amber-300">
+                  {lang === 'id' ? 'Pajak Korporasi Tidak Dihitung' : 'Corporate Tax Excluded'}
+                </span>
+              </div>
+              <p className="text-xs md:text-sm text-amber-900 mt-1 leading-relaxed">
+                {lang === 'id'
+                  ? 'Khusus untuk kWh Rumah (Rumah Tinggal / Golongan Tarif R-1, R-2, R-3), parameter Insentif Pajak Korporasi otomatis TIDAK DIHITUNG, karena fasilitas insentif pajak korporasi (seperti amortisasi 100% atau tax credit) secara aturan perundang-undangan hanya berlaku untuk Badan Usaha (PT / CV / Industri).'
+                  : 'Corporate tax incentive parameters are excluded for residential customers as tax incentives apply strictly to corporate entities.'}
+              </p>
+              <div className="mt-3 pt-2 border-t border-amber-200/60 flex items-center justify-between flex-wrap gap-2 text-xs">
+                <span className="text-amber-800">
+                  Status: <b>{props.buildingType.startsWith('個人宅') ? 'Rumah Tinggal' : 'Pelanggan Residensial'}</b> (Perhitungan finansial murni berbasis penghematan biaya listrik)
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    props.setIsCorps(true);
+                    if (props.buildingType.startsWith('個人宅')) {
+                      props.setBuildingType('工場倉庫_冷蔵あり');
+                    }
+                  }}
+                  className="px-2.5 py-1 bg-white border border-amber-300 rounded font-semibold text-amber-900 hover:bg-amber-100 transition shadow-xs"
+                >
+                  🏢 Ubah ke Pelanggan Korporasi / Bisnis
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -2458,11 +2807,11 @@ function ResultSection({ address, buildingType, result, cashflowData, isCorps, l
         <MetricCard label={t.cardCapacity} value={result.capacityKw.toFixed(1)} unit="kW"
           subtext={t.sheetsSub.replace('{sheets}', result.sheets)} accent="red" />
         <MetricCard label={t.cardBattery} value={result.actualBatteryKwh.toFixed(1)} unit="kWh"
-          subtext={t.batteryUnitSub.replace('{units}', Math.ceil(result.actualBatteryKwh / DEFAULT_PRODUCT_MASTER.batteryUnitKwh))} accent="teal" />
+          subtext={result.actualBatteryKwh > 0 ? t.batteryUnitSub.replace('{units}', Math.ceil(result.actualBatteryKwh / DEFAULT_PRODUCT_MASTER.batteryUnitKwh)) : (lang === 'id' ? '0 Unit (Tanpa Baterai)' : (lang === 'en' ? '0 Units (No Battery)' : '0台（蓄電池なし）'))} accent="teal" />
         <MetricCard label={t.cardGen} value={fmt(result.annualGen)} unit="kWh"
           subtext={result.prefecture} accent="red" />
         <MetricCard label={t.cardSelfRate} value={(result.selfConsumptionRate * 100).toFixed(0)} unit="%"
-          subtext={t.withBatterySub} accent="teal" />
+          subtext={result.actualBatteryKwh > 0 ? t.withBatterySub : (lang === 'id' ? 'Sistem On-Grid Tanpa Baterai' : (lang === 'en' ? 'Grid-Tied Without Battery' : '蓄電池なし系統連系'))} accent="teal" />
       </div>
 
       {/* 経済性 & Arus Kas */}
