@@ -1,0 +1,2670 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOパワーシミュレーターⅡ｜詳細診断版・法人税制優遇判定搭載 (GoPower Simulator II - Pro)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-is@18.2.0/umd/react-is.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+<script crossorigin src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.24.0/babel.min.js"></script>
+<script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<!-- Google Maps JavaScript SDK（Geocoder + Geometry） -->
+<script>
+  window.initGoogleMaps = function() {
+    window.googleMapsReady = true;
+    console.log('Google Maps SDK loaded (with geometry library)');
+  };
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyArEy72wDyUc9GBOt6b2L8IuEN-WIDnZU0&libraries=geometry&loading=async&callback=initGoogleMaps" async defer></script>
+<style>
+  :root {
+    --gp-red: #C0392B;
+    --gp-red-dark: #962E22;
+    --gp-teal: #1A6B5A;
+    --gp-teal-dark: #145446;
+    --gp-gold: #D4A845;
+    --gp-bg: #F5F1E8;
+    --gp-bg-card: #FFFFFF;
+    --gp-text: #1A1A1A;
+    --gp-text-muted: #6B6B6B;
+    --gp-border: #E0DCD0;
+  }
+  * { font-family: 'Meiryo', 'メイリオ', 'Hiragino Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  body {
+    background: var(--gp-bg);
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(192, 57, 43, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(26, 107, 90, 0.04) 0%, transparent 50%);
+    color: var(--gp-text);
+  }
+  .gp-card {
+    background: var(--gp-bg-card);
+    border: 1px solid var(--gp-border);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .gp-btn-primary {
+    background: var(--gp-red);
+    color: white;
+    transition: all 0.2s;
+  }
+  .gp-btn-primary:hover { background: var(--gp-red-dark); }
+  .gp-btn-secondary {
+    background: var(--gp-teal);
+    color: white;
+    transition: all 0.2s;
+  }
+  .gp-btn-secondary:hover { background: var(--gp-teal-dark); }
+  .gp-btn-ghost {
+    background: white;
+    border: 1px solid var(--gp-border);
+    color: var(--gp-text);
+    transition: all 0.2s;
+  }
+  .gp-btn-ghost:hover { background: #F8F5EE; }
+  .gp-input {
+    border: 1px solid var(--gp-border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    width: 100%;
+    background: white;
+    transition: border-color 0.2s;
+  }
+  .gp-input:focus {
+    outline: none;
+    border-color: var(--gp-teal);
+    box-shadow: 0 0 0 3px rgba(26,107,90,0.1);
+  }
+  .gp-section-title {
+    font-weight: 700;
+    color: var(--gp-text);
+    border-left: 4px solid var(--gp-red);
+    padding-left: 12px;
+    margin-bottom: 16px;
+  }
+  .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    font-size: 48px;
+    font-weight: 900;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .rank-A { background: linear-gradient(135deg, #C0392B 0%, #962E22 100%); }
+  .rank-B { background: linear-gradient(135deg, #1A6B5A 0%, #145446 100%); }
+  .rank-C { background: linear-gradient(135deg, #D4A845 0%, #A8862F 100%); }
+  .rank-D { background: linear-gradient(135deg, #6B6B6B 0%, #4A4A4A 100%); }
+  .number-large {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--gp-red);
+    line-height: 1.1;
+  }
+  .number-medium {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--gp-teal);
+    line-height: 1.1;
+  }
+  .tab-btn {
+    padding: 12px 24px;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--gp-text-muted);
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    color: var(--gp-red);
+    border-bottom-color: var(--gp-red);
+  }
+  .gp-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--gp-teal);
+  }
+  .gp-radio {
+    accent-color: var(--gp-red);
+  }
+  /* 入口免責 */
+  .disclaimer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+  }
+  .disclaimer-box {
+    background: white;
+    max-width: 760px;
+    width: 100%;
+    padding: 32px;
+    border-radius: 12px;
+    border-top: 6px solid var(--gp-red);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  /* 屋根面積取得モード切替タブ */
+  .mode-tab {
+    flex: 1;
+    padding: 10px 8px;
+    border: 1px solid var(--gp-border);
+    background: white;
+    color: var(--gp-text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .mode-tab:first-child { border-radius: 6px 0 0 6px; }
+  .mode-tab:last-child { border-radius: 0 6px 6px 0; }
+  .mode-tab:not(:first-child) { border-left: none; }
+  .mode-tab.active {
+    background: var(--gp-teal);
+    color: white;
+    border-color: var(--gp-teal);
+  }
+  /* 地図描画 */
+  .map-container {
+    width: 100%;
+    height: 480px;
+    border-radius: 8px;
+    border: 1px solid var(--gp-border);
+    overflow: hidden;
+    position: relative;
+  }
+  .map-overlay-instruction {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255,255,255,0.95);
+    padding: 8px 14px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gp-text);
+    z-index: 5;
+    max-width: 320px;
+    line-height: 1.5;
+  }
+  .map-overlay-result {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    background: rgba(192, 57, 43, 0.95);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    font-size: 14px;
+    font-weight: 700;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  /* Lang Switcher */
+  .lang-switcher {
+    display: inline-flex;
+    background: rgba(0,0,0,0.06);
+    padding: 3px;
+    border-radius: 8px;
+    gap: 2px;
+  }
+  .lang-btn {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gp-text-muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .lang-btn:hover {
+    color: var(--gp-text);
+    background: rgba(255,255,255,0.6);
+  }
+  .lang-btn.active {
+    background: white;
+    color: var(--gp-red);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  /* Rate conversion badges */
+  .rate-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #EDE8DC;
+    color: #4A4A4A;
+  }
+  /* 印刷用 */
+  @media print {
+    .no-print { display: none !important; }
+    body { background: white !important; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef } = React;
+const GOPOWER_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAADiCAYAAABeKD4gAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAEAAElEQVR4nOT9Z5MkSZKmCT4sIqoGHAZKnIUaTA8N2KU9Ojq6o/v/X47oaOlmdmenB3UXykoQyKGZqgjzfWARVTV3j0hcEdkjWVHqhhQIYGF++WVm4V02qf8AzP8JgXDnOxLM/zRDDBIQADOANRI6zApqiqFIPZmSifUSy2MCNgG2ATvOcB7gk9NjPnv8mA/WJ5x2kdO44rhfkaJwfXHJq8tXlFLo1xtWqxVChDyyCRBQRISM32fGMAkUMxRjGAaGYSClxPnpI46Ojri9veWPV5d8uV3x31895/d//oJv9sYIjCC3wC2QgT1QAOsShQhRQBKMA2R/1hQ7YoyoKmMeAQgS6LtEKSNSFMh0AiKg6uceAWvj0Dp+MQApRoIamg2KYfVDJQBan1h/1DT4MU1EMJ8I0+sQwnQchuEtP2Z+VgN0no4ioAGfMDZ/jiZ6oCNgCANGxhCMnli/5F/2n9k0LwwItf9F6zwEzoEPjzr7cLPhqSXOCfzq5JxPTk8579f0QRCU3X7P690lN8MeDZGUEiErScL0zMBBf7Q2jiPjOLLdbnn06BEpJfb7kSgdL/c7/nj1mv969YL/dvOSP+6UVxm5xudIe6LWBQN1zgSg+HUtRJ9UUieT2kEXK4a1eSLqbwrz1LE7x6VsWDb1IYl14MZpDr6bJgS/vviDRKv9Ve9dLCEIRsFEYQUM8Kz+mf0lpf5t9W+Y+/uh1qbtu1t5P761KSD4s7bj8rlDiJgZ2fwdY17bUQLSZB2gVRb4XPNZsUrJZaLqPNVC+wFzR9ZOF4QYIxAopRyuJYFJSLSbXcx1gK7rCCH4faiSc/5J+urnaL7XtlGw2gU6Pycg9dFad1l7sTyCd2obvMU+rnV9SghYFLD\\n<truncated 42691 bytes>\\nqGA+PuuJpzpd2Xy/fPd98e+65Ax6gLXVSYGP9iruexcNQ1UfBdjzCLr8bc/j5H19HfDhDNbNmH+qQBV61Qx2z7zbpdTTHTwDr8S+1vpUZ9tHkXAzK2ZxP+mmvppwavvss1JqDJZhZaG9M5aqWGuopRxPOIesidvnHruDufZwe6zHtOc7R1ab6Xiiks73UazwV5R1oxuzvXeMhGf5NjxokHS1vK9UVfExXAqjI9Nhte3KYo4iSaMg6kFDhR42nq+DgFG7PKy1Ep4441cXJUF9F5kv5UscvvuP0oAMu1BCP0wkkQPrRkH222PE0dj0PiRBTLlVkVA31wozSYOtPEjGyHlQ1L9QbBvPk2D3x90wGZyqSS4B6TNhGmViu/NQVyiuXHauiIK8ZjzgSBLiU6cSp1q9IHSt93DOCKkCqUQBkyWhwl3kumhBlZbWFVqAvpnDOrnFitVqRYlTgJ7ikpfm99TKTUA26UmXpI5ajOTvCudkMwcripSFXWSrXHyv+fvf/qkuRIsnTRT1TVzNw9WDKQAlCku7qHnZl1Lnk5D/e33z9w5mXW3JmeniZVBRRoZgZ3YmaqKvdBVM3NPSITCVIEXaVYAc9w9zCipkRky5Yt9fwVzCgGcGWdVSG6mDMxK+ttz/LknGcfPOE2eH53+TX/9cvf8U+bUbZH/ubkmOse0PpTU4AnAG0ySA1gaZMVEXgC+sliySerU54CzdgDCV02lhribEanAp6q7jOia0Su6n44qg6MFufWSicDU99OG2SJTFU20jSma+SrOiohUIsfaCrpD97jXUC8OfCtBlJMpF1PjNGi2QoxDmxEyVUbq1xjXXDrnbShwQF9NgpuQ5lbY2LZtDbW1R1WwlCrnlP1ZvzkkDHNI8RZtNt27UcX71jer2KFtdUNS9TKyFs0FPBM5e2z2IbehAAR+jjix8zSOZ45uHaOFuhjJsYBt2wIAnGa+xlK0YPqvh20H2MB/5Y9X6k59AXJkMMqhLUvKoBycOgjh3f+Xu3vbz3/GwzT+rdOgjn9gHMWcYpl0xTnprklugeyKssqkyEbwPRt56/MmjlDK4uAa4g6Y86qknOp0ONsTFoqVylcMF2rfZaPHIG3GWFzgKTuCfX3OWMGIGFpv/V3V3WXiqMpwbFUx2bYsRClj5nzrPxssWK7HfQbkF3aCwtbPxqYKdYxdrw3Xu07ttkBavrd9FYFOoJHx4RqZFHAygZ4GgLvna44CY6WTOccnRckm1O3CC1bEmMeSUmJzpGlIwfHgKUbzfUBH2vHmhp26/PxrBVHBGbsrZKuHdVSpVxxdqZn5yB7x60qKWWGFIkpTvNqjJFxHPeFZ4KfQK2cM+IdnXguXMAnu57gPE3jS4oWoFYFKHhHkxOxgNGuMK/GlGjE0mjnDNhDQOTQGT4uRCBYf0+Yncie8Vr9O62sEiGLeeTZY1ZP62iy6WKJOFK3JCLc9r2u+1EaUXJJJahPItbRUo59MIWOBuQEiEyvh885uNaAEBQvFj3eZeXrzT2/uwr8InRciAMp/C+1cWoVt+r+8vgYeidHuVygL8HQJMaet0q9yqbfsB1GGNNks+jkadZDmIN57LD8wZtiThR7hlwLcH/PcHtDwtFoRtSj3krLh2K/QalwK/Yc9/vC3hY9AIQru6ECFtmCPCnX/TsTMuRxNGenhjS8rSriPW3bkgX6+3t2t9e4YbBoP3u/aKw4vaajxWh/yz96H2rdZyl7vn0khR249PbMt+PASTAgzrvMOI4kVbJ4nJpPMNfDmY8/v5+gB+PDizHzU/ErcjL7xWrqCN55+pR4tbvni92G22EUm3/y4/XF0VjWYmpELQDJFPCxYHrO2QoOwQMQtN73W093YMe9/dIqwCziiq8iRfcYC5yVtOJjgGkqeJH1LQDUUR98n9e3Khcy6aJN91JuWlXRkk6OOBsXM\\nThe above content was truncated because individual lines are very long. Only a portion of the content is shown.\\n";
+
+// ============================================================
+// 多言語辞書 (i18n Translations: JA / ID / EN)
+// ============================================================
+const TRANSLATIONS = {
+  ja: {
+    appTitle: "GOパワーシミュレーターⅡ",
+    appSubtitle: "詳細診断版・法人税制優遇判定搭載",
+    versionBadge: "Ver 2.5 Pro",
+    tabInput: "① 診断条件入力",
+    tabResult: "② 診断結果・レポート",
+    disclaimerTitle: "GOパワーシミュレーターⅡ ご利用にあたって",
+    disclaimerSub: "営業・診断開始前の重要確認事項",
+    disclaimerItem1Title: "国・自治体の補助金について",
+    disclaimerItem1Desc: "当社製品（太陽光パネル・蓄電池）は中国製のため、SII登録等を要件とする国や自治体の補助金は対象外となります。",
+    disclaimerItem2Title: "法人税制優遇制度（中小企業経営強化税制など）について",
+    disclaimerItem2Desc: "補助金対象外であっても、法人のお客様は「中小企業経営強化税制 A類型/B類型」による即時償却または税額控除（最大10%）を別枠で活用可能です。",
+    disclaimerItem3Title: "試算値の取り扱いについて",
+    disclaimerItem3Desc: "本診断は日射量データおよび標準仕様に基づく概算シミュレーションです。正式な見積額・発電予測は現地調査後に提示いたします。",
+    disclaimerBtn: "上記の内容を理解してシミュレーターを開始",
+    sec1Title: "① 物件特定",
+    propAddress: "物件住所",
+    propAddressPlaceholder: "例：愛知県名古屋市緑区上旭2-1226",
+    buildingTypeLabel: "建物種別",
+    roofShapeLabel: "屋根形状",
+    roofAreaModeLabel: "屋根面積の取得方法",
+    modeMap: "🛰️ 航空写真で実測（推奨）",
+    modeManual: "✏️ 手入力",
+    mapTip: "住所を入力した後、下のボタンで航空写真を表示し、屋根の四隅をタップして面積を測ります。お客様にも画面を見せながら一緒に確認できます。",
+    btnOpenMap: "🗺️ 航空写真を表示して測定する",
+    btnGeocoding: "位置情報取得中...",
+    mapMeasuredOk: "航空写真上で計測済み（{area}㎡）。再測定する場合は再度ボタンを押してください。",
+    manualTip: "事前調査で屋根面積が分かっている場合は、下の屋根面積欄に直接ご入力ください。",
+    roofAreaLabel: "屋根面積（㎡） — 値は編集可能",
+    effectiveRoofArea: "有効面積（係数適用後）：",
+    panelSheets: "想定パネル枚数：",
+    panelUnit: "枚",
+    installedCapacity: "搭載容量：",
+    sec2Title: "② 経済条件（電気代・単価設定）",
+    monthlyBillLabel: "月額電気代（円/月・税込概算）",
+    electricityRateLabel: "電気料金単価（円/kWh）",
+    elecRateAutoTip: "※ 建物種別に応じて初期値を設定。実際の請求書に合わせて調整してください。",
+    secRatesSettingTitle: "⚙️ 為替レート・通貨換算設定（YEN / USD / IDR）",
+    rateJpyToIdr: "1 JPY ＝ (IDR Rupiah)",
+    rateUsdToIdr: "1 USD ＝ (IDR Rupiah)",
+    rateCalculated: "為替換算基準：",
+    btnResetRates: "標準レートに戻す",
+    sec3Title: "③ BCP（停電対策・重要負荷）",
+    bcpTargetHoursLabel: "停電時の目標稼働時間（BCP目標時間）",
+    hoursUnit: "時間",
+    importantLoadsLabel: "停電時に維持したい重要設備（複数選択可）",
+    customLoadKwLabel: "合計重要負荷（kW） — 自動計算または直接調整",
+    sec4Title: "④ 法人税制優遇の前提条件",
+    corpScaleLabel: "企業規模区分",
+    isAoiroLabel: "青色申告法人（税制優遇の必須要件）",
+    isAoiroYes: "青色申告を行っている",
+    isAoiroNo: "白色申告",
+    kogyoCertLabel: "工業会証明書の取得見込み（A類型判定用）",
+    kogyoCertYes: "取得可能（即時償却/10%控除のA類型へ）",
+    kogyoCertNo: "取得不可または未定（B類型検討）",
+    annualProfitLabel: "年間経常利益 / 課税所得の目安（円）",
+    btnGoToResult: "詳細診断結果を見る →",
+    sec5Title: "⑤ 製品・単価マスタ（任意設定）",
+    masterToggle: "製品・工事単価マスタの設定を確認・変更する",
+    toggleClose: "▲ 閉じる",
+    toggleOpen: "▼ 表示する",
+    resultBackBtn: "← 入力に戻る",
+    companyPlaceholder: "会社名（株式会社○○ など）",
+    btnPptxExport: "PowerPoint提案書を作成",
+    btnPdfExport: "PDF提案書ダウンロード",
+    targetProperty: "診断対象物件",
+    noAddress: "（住所未入力）",
+    overallRank: "総合判定",
+    rankA: "即導入推奨",
+    rankB: "導入価値あり",
+    rankC: "BCP対策向き",
+    rankD: "要再検討",
+    cardCapacity: "搭載容量",
+    cardBattery: "蓄電池容量",
+    cardGen: "年間発電量",
+    cardSelfRate: "自家消費率",
+    sheetsSub: "パネル {sheets}枚",
+    batteryUnitSub: "{units}ユニット",
+    withBatterySub: "蓄電池込み",
+    secEconTitle: "経済性",
+    annualSaving: "年間電気代削減額",
+    investmentCost: "投資額（税抜）",
+    paybackYears: "回収年数",
+    afterTax: "税制優遇後",
+    perYear: "/年",
+    standardBase: "標準構成ベース",
+    chartTitle: "20年累計キャッシュフロー",
+    yearUnit: "年",
+    cumProfit20: "20年累計利益：",
+    withTaxProfit: "税制優遇込み：",
+    secBcpTitle: "BCP（事業継続計画）価値",
+    recBatteryCap: "推奨蓄電池容量",
+    recBatteryMin: "必要量 {req}kWh以上",
+    backupHoursLabel: "停電時に守れる時間",
+    backupHoursSub: "重要負荷{load}kW・目標{hours}時間",
+    bcpAvoidVal: "業務停止損失回避額",
+    perOutage: "/停電1回あたり",
+    secTaxTitle: "法人税制優遇",
+    applicableTaxScheme: "適用可能制度",
+    maxTaxSaving: "節税額（最大）",
+    taxSchemeChoiceTitle: "御社の方針で有利な制度が変わります",
+    priorityCashflow: "💰 資金繰り重視",
+    priorityTotal: "📊 総額重視",
+    recImmediate: "推奨：即時償却",
+    recImmediateDesc: "初年度に現金 {firstYear} が戻り、投資回収を早めます（課税の繰延べ。通算 {total}）。手元資金を優先する御社向け。",
+    recTaxCredit: "推奨：税額控除",
+    recTaxCreditDesc: "通常の減価償却に加え、別枠で {credit}（今期実効・上限考慮）を永久に減税。手元資金より総額の最大化を優先する御社向け。",
+    checklistTitle: "手続きチェックリスト",
+    certAlertTitle: "⚠ 工業会証明書の取得可否をメーカーへご確認ください",
+    certAlertDesc: "取得可否で適用制度（A類型 / B類型）が変わります",
+    secEnvTitle: "環境貢献",
+    co2ReductionLabel: "年間CO2削減量",
+    co2Unit: "トン-CO2",
+    cedarTreesLabel: "杉の木換算",
+    cedarTreesUnit: "本/年",
+    cedarDesc: "杉1本＝14kg-CO2/年吸収",
+    footerNoticeTitle: "本診断結果について",
+    footerNotice1: "※本シミュレーションは概算であり、契約金額・投資効果を保証するものではありません。正式なお見積りは現地調査後に弊社よりご提示いたします。",
+    footerNotice2: "※当社製品（パネル・蓄電池）は中国製のため、SII登録に基づく国・自治体の補助金は対象外です。法人のお客様には別枠で税制優遇制度が適用可能です。",
+    footerNotice3: "※税制優遇の適用には事前手続きが必要です（設備取得した事業年度内の認定が必須）。具体的な進め方は税理士・GOパワーまでご相談ください。",
+    mapInstruction0: "👆 屋根の角を順にタップ／クリック",
+    mapInstruction1: "✏️ 続けて2点目をタップ",
+    mapInstruction2: "✏️ あと1点で図形が完成します",
+    mapInstruction3: "✓ {count}点で屋根を囲みました（点をドラッグで微調整可）",
+    mapMeasuredArea: "測定面積",
+    mapAdoptBtn: "この値を採用する →",
+    mapUndoBtn: "↶ 1点戻る",
+    mapClearBtn: "🗑 全クリア",
+    mapCloseBtn: "地図を閉じる",
+    mapGuideTitle: "使い方：",
+    mapGuide1: "地図上で建物の屋根の四隅を順番にタップしてください。3点以上で面積が自動計算されます。複雑な屋根は5〜8点で囲むと精度が上がります。",
+    mapGuideTitle2: "位置調整：",
+    mapGuide2: "打った点（赤い丸）はドラッグで動かせます。少しズレた点を指でつまんで正しい位置にずらせば、面積が自動再計算されます。",
+    mapGuideTitle3: "地図操作：",
+    mapGuide3: "2本指でピンチイン／アウト（ズーム）、ドラッグで移動。地図種別は「ハイブリッド／航空写真／地図」を切替可能。"
+  },
+  id: {
+    appTitle: "GO Power Simulator II",
+    appSubtitle: "Diagnosis Detail & Penilaian Insentif Pajak Korporasi",
+    versionBadge: "Ver 2.5 Pro",
+    tabInput: "① Input Parameter",
+    tabResult: "② Hasil Diagnosis & Laporan",
+    disclaimerTitle: "Ketentuan Penggunaan GO Power Simulator II",
+    disclaimerSub: "Informasi Penting Sebelum Memulai Simulasi",
+    disclaimerItem1Title: "Tentang Subsidi Pemerintah / Daerah",
+    disclaimerItem1Desc: "Produk kami (panel surya & baterai BESS) diproduksi di fasilitas bersertifikasi internasional dan tidak bergantung pada skema subsidi SII domestik Jepang.",
+    disclaimerItem2Title: "Tentang Insentif Pajak Korporasi (SME Enhancement Tax)",
+    disclaimerItem2Desc: "Klien korporasi dapat memanfaatkan skema Insentif Peningkatan Manajemen UKM (Tipe A/B) untuk Amortisasi Cepat 100% (即時償却) atau Potongan Pajak langsung hingga 10%.",
+    disclaimerItem3Title: "Estimasi & Akurasi Perhitungan",
+    disclaimerItem3Desc: "Simulasi ini dihitung berdasarkan data radiasi matahari dan spesifikasi teknis standar. Seluruh kalkulasi keuangan ditampilkan dalam Rupiah (Rp). Penawaran resmi dan studi kelayakan final akan diberikan setelah survei lokasi.",
+    disclaimerBtn: "Saya Memahami Ketentuan & Mulai Simulasi",
+    sec1Title: "① Identifikasi Objek & Atap",
+    propAddress: "Alamat / Lokasi Properti",
+    propAddressPlaceholder: "Contoh: Kawasan Industri Cikarang / Jakarta / Surabaya",
+    buildingTypeLabel: "Jenis Bangunan / Fasilitas",
+    roofShapeLabel: "Bentuk / Tipe Atap",
+    roofAreaModeLabel: "Metode Pengukuran Luas Atap",
+    modeMap: "🛰️ Ukur via Citra Satelit (Direkomendasikan)",
+    modeManual: "✏️ Input Manual",
+    mapTip: "Setelah memasukkan alamat, klik tombol di bawah untuk membuka citra satelit dan tap/klik sudut atap untuk mengukur luas poligon secara langsung bersama klien.",
+    btnOpenMap: "🗺️ Buka Peta Satelit & Ukur Atap",
+    btnGeocoding: "Mencari koordinat lokasi...",
+    mapMeasuredOk: "Telah diukur via satelit ({area} ㎡). Klik tombol lagi jika ingin mengukur ulang.",
+    manualTip: "Jika Anda telah mengetahui luas atap dari denah/survei, masukkan langsung nilainya pada kolom luas di bawah.",
+    roofAreaLabel: "Luas Atap (㎡) — Nilai dapat diedit",
+    effectiveRoofArea: "Luas Efektif Atap (Koefisien):",
+    panelSheets: "Estimasi Jumlah Modul Panel:",
+    panelUnit: "lembar",
+    installedCapacity: "Kapasitas Pembangkit (PV):",
+    sec2Title: "② Kondisi Ekonomi & Tarif Listrik",
+    monthlyBillLabel: "Tagihan Listrik Bulanan (Rp / Bulan)",
+    electricityRateLabel: "Tarif Listrik per kWh (Rp / kWh)",
+    elecRateAutoTip: "※ Nilai default disesuaikan dengan jenis fasilitas. Silakan sesuaikan dengan tagihan listrik aktual.",
+    secRatesSettingTitle: "⚙️ Pengaturan Kurs & Tarif Listrik (YEN, USD, IDR)",
+    rateJpyToIdr: "Kurs 1 JPY ke Rupiah (Rp)",
+    rateUsdToIdr: "Kurs 1 USD ke Rupiah (Rp)",
+    rateCalculated: "Referensi Konversi Kurs:",
+    btnResetRates: "Reset ke Kurs Standar",
+    sec3Title: "③ BCP (Proteksi Mati Lampu & Beban Kritis)",
+    bcpTargetHoursLabel: "Target Durasi Proteksi Cadangan (Target BCP)",
+    hoursUnit: "Jam",
+    importantLoadsLabel: "Peralatan Penting yang Wajib Menyala Saat Mati Listrik",
+    customLoadKwLabel: "Total Beban Kritis (kW) — Terhitung otomatis atau edit manual",
+    sec4Title: "④ Parameter Insentif Pajak Korporasi",
+    corpScaleLabel: "Klasifikasi Skala Perusahaan",
+    isAoiroLabel: "Status SPT Pajak Biru (Syarat Insentif Pajak)",
+    isAoiroYes: "Wajib Pajak SPT Biru (Memenuhi Syarat)",
+    isAoiroNo: "SPT Putih / Standar",
+    kogyoCertLabel: "Sertifikat Asosiasi Industri (Penentu Tipe A)",
+    kogyoCertYes: "Dapat Diperoleh (Memenuhi Tipe A: Amortisasi 100% / Potongan 10%)",
+    kogyoCertNo: "Belum Ada / Tidak Tersedia (Evaluasi Tipe B)",
+    annualProfitLabel: "Estimasi Laba Sebelum Pajak Tahunan (Rp)",
+    btnGoToResult: "Lihat Hasil Diagnosis Lengkap →",
+    sec5Title: "⑤ Master Harga Produk & Instalasi (Opsional)",
+    masterToggle: "Buka / Ubah Parameter Master Biaya Produk & EPC",
+    toggleClose: "▲ Tutup",
+    toggleOpen: "▼ Tampilkan",
+    resultBackBtn: "← Kembali ke Input",
+    companyPlaceholder: "Nama Perusahaan (PT / CV / Corp)",
+    btnPptxExport: "Buat Proposal PowerPoint (.pptx)",
+    btnPdfExport: "Unduh Laporan Proposal PDF",
+    targetProperty: "Objek Diagnosis Properti",
+    noAddress: "(Alamat belum diisi)",
+    overallRank: "Peringkat Kelayakan",
+    rankA: "Sangat Direkomendasikan",
+    rankB: "Layak Diinvestasikan",
+    rankC: "Fokus Proteksi BCP",
+    rankD: "Perlu Evaluasi Ulang",
+    cardCapacity: "Kapasitas Panel (PV)",
+    cardBattery: "Kapasitas Baterai (BESS)",
+    cardGen: "Produksi Listrik / Tahun",
+    cardSelfRate: "Konsumsi Mandiri",
+    sheetsSub: "Modul {sheets} lembar",
+    batteryUnitSub: "{units} Unit Baterai",
+    withBatterySub: "Termasuk Sistem Baterai",
+    secEconTitle: "Kelayakan Finansial & Penghematan",
+    annualSaving: "Penghematan Listrik Tahunan",
+    investmentCost: "Estimasi Nilai Investasi (EPC)",
+    paybackYears: "Periode Balik Modal (Payback)",
+    afterTax: "Setelah Insentif Pajak",
+    perYear: "/tahun",
+    standardBase: "Basis Konfigurasi Standar",
+    chartTitle: "Proyeksi Arus Kas Kumulatif 20 Tahun",
+    yearUnit: "Tahun",
+    cumProfit20: "Akumulasi Keuntungan 20 Tahun: ",
+    withTaxProfit: "Dengan Insentif Pajak: ",
+    secBcpTitle: "Nilai BCP (Business Continuity Plan)",
+    recBatteryCap: "Kapasitas Baterai Direkomendasikan",
+    recBatteryMin: "Kebutuhan Min: {req} kWh",
+    backupHoursLabel: "Durasi Proteksi Listrik Darurat",
+    backupHoursSub: "Beban Kritis {load} kW · Target {hours} Jam",
+    bcpAvoidVal: "Penghindaran Kerugian Operasional",
+    perOutage: "/peristiwa pemadaman",
+    secTaxTitle: "Fasilitas Insentif Pajak Korporasi",
+    applicableTaxScheme: "Skema Pajak yang Berlaku",
+    maxTaxSaving: "Penghematan Pajak (Maksimal)",
+    taxSchemeChoiceTitle: "Pilihan Strategi Pajak Berdasarkan Kebijakan Finansial",
+    priorityCashflow: "💰 Prioritas Arus Kas / Likuiditas",
+    priorityTotal: "📊 Prioritas Total Potongan Pajak",
+    recImmediate: "Rekomendasi: Amortisasi Kilat (即時償却)",
+    recImmediateDesc: "Arus kas kembali +{firstYear} di tahun pertama (penundaan pajak; total {total}). Sangat cocok untuk mempercepat pengembalian modal awal.",
+    recTaxCredit: "Rekomendasi: Potongan Pajak Tetap (税額控除)",
+    recTaxCreditDesc: "Pengurangan langsung beban pajak penghasilan sebesar {credit} (potongan permanen). Optimal jika target perusahaan adalah memaksimalkan total efisiensi.",
+    checklistTitle: "Checklist Dokumen & Prosedur Pajak",
+    certAlertTitle: "⚠ Konfirmasi Sertifikat Asosiasi Industri ke Produsen",
+    certAlertDesc: "Ketersediaan sertifikat menentukan klasifikasi Tipe A (Otomatis) atau Tipe B (Rencana Investasi)",
+    secEnvTitle: "Kontribusi Lingkungan (ESG & Dekarbonisasi)",
+    co2ReductionLabel: "Reduksi Emisi CO2 Tahunan",
+    co2Unit: "Ton-CO2",
+    cedarTreesLabel: "Ekuivalen Penanaman Pohon",
+    cedarTreesUnit: "Pohon/tahun",
+    cedarDesc: "1 pohon cedar = menyerap 14 kg CO2/tahun",
+    footerNoticeTitle: "Catatan & Ketentuan Diagnosis",
+    footerNotice1: "※ Hasil simulasi ini merupakan estimasi teknis & ekonomis, bukan kontrak harga mengikat. Penawaran resmi akan diterbitkan setelah survei lapangan.",
+    footerNotice2: "※ Panel surya & sistem baterai kami memiliki efisiensi tinggi kelas industri. Klien korporat berhak atas fasilitas insentif pajak sesuai regulasi yang berlaku.",
+    footerNotice3: "※ Pemanfaatan insentif pajak membutuhkan registrasi rencana sebelum/dalam tahun fiskal perolehan aset. Konsultasikan dengan konsultan pajak & tim GO Power.",
+    mapInstruction0: "👆 Tap / klik sudut-sudut atap bangunan secara berurutan",
+    mapInstruction1: "✏️ Lanjutkan dengan mengetuk titik kedua",
+    mapInstruction2: "✏️ Tambah 1 titik lagi untuk menutup bidang poligon atap",
+    mapInstruction3: "✓ {count} titik atap terpilih (titik merah dapat digeser untuk penyesuaian)",
+    mapMeasuredArea: "Luas Terukur",
+    mapAdoptBtn: "Gunakan Luas Ini →",
+    mapUndoBtn: "↶ Undo Titik",
+    mapClearBtn: "🗑 Reset Poligon",
+    mapCloseBtn: "Tutup Peta",
+    mapGuideTitle: "Petunjuk:",
+    mapGuide1: "Tap sudut-sudut atap pada peta satelit. Luas bidang poligon akan dihitung otomatis saat 3 titik atau lebih terhubung.",
+    mapGuideTitle2: "Penyesuaian Posisi:",
+    mapGuide2: "Titik merah dapat digeser (drag & drop) dengan jari/kursor untuk menyesuaikan kontur atap secara presisi.",
+    mapGuideTitle3: "Navigasi Peta:",
+    mapGuide3: "Gunakan 2 jari untuk zoom/geser peta. Anda dapat beralih antara tampilan Satelit, Hibrida, atau Peta Jalan."
+  },
+  en: {
+    appTitle: "GO Power Simulator II",
+    appSubtitle: "Pro Diagnosis & Corporate Tax Incentive Evaluation",
+    versionBadge: "Ver 2.5 Pro",
+    tabInput: "① Simulation Inputs",
+    tabResult: "② Diagnosis Results & Report",
+    disclaimerTitle: "Terms of Use - GO Power Simulator II",
+    disclaimerSub: "Important Information Before Starting Diagnosis",
+    disclaimerItem1Title: "About Government / Local Subsidies",
+    disclaimerItem1Desc: "Our solar panels and BESS battery systems are manufactured under global standards and do not rely on local domestic SII subsidy programs.",
+    disclaimerItem2Title: "Corporate Tax Incentive Scheme (SME Management Enhancement)",
+    disclaimerItem2Desc: "Corporate clients can leverage the Japanese SME Tax Incentive Framework (Type A / B) for 100% Immediate Depreciation (即時償却) or up to 10% direct Tax Credit (税額控除).",
+    disclaimerItem3Title: "Simulation Estimates & Currency Conversion",
+    disclaimerItem3Desc: "This diagnosis is an engineering estimate based on meteorological solar insolation models. Financial calculations are converted flexibly across currencies. Formal quotation and feasibility study are issued following on-site audit.",
+    disclaimerBtn: "I Understand & Start Simulator",
+    sec1Title: "① Property & Roof Identification",
+    propAddress: "Property Address / Location",
+    propAddressPlaceholder: "e.g., Cikarang Industrial Estate / Jakarta / Singapore / Tokyo",
+    buildingTypeLabel: "Facility / Building Type",
+    roofShapeLabel: "Roof Structure / Profile",
+    roofAreaModeLabel: "Roof Measurement Method",
+    modeMap: "🛰️ Satellite Polygon Measurement (Recommended)",
+    modeManual: "✏️ Manual Input",
+    mapTip: "Enter your address, then click below to open satellite imagery and tap roof vertices to measure polygon area in real-time with your client.",
+    btnOpenMap: "🗺️ Launch Satellite Map & Measure",
+    btnGeocoding: "Geocoding address...",
+    mapMeasuredOk: "Satellite measured area: ({area} ㎡). Click again to re-measure if needed.",
+    manualTip: "If you already know the roof area from architectural drawings or site audit, enter the value directly below.",
+    roofAreaLabel: "Roof Area (㎡) — Editable Value",
+    effectiveRoofArea: "Effective Area (Coeff Applied):",
+    panelSheets: "Estimated Solar Modules:",
+    panelUnit: "modules",
+    installedCapacity: "System PV Capacity:",
+    sec2Title: "② Economic Conditions & Power Tariff",
+    monthlyBillLabel: "Monthly Electricity Bill (USD / Month)",
+    electricityRateLabel: "Electricity Tariff (USD / kWh)",
+    elecRateAutoTip: "※ Default tariff set by facility type. Adjust to match actual electricity utility bill.",
+    secRatesSettingTitle: "⚙️ Currency Exchange & Tariff Rate Settings (YEN, USD, IDR)",
+    rateJpyToIdr: "1 JPY ＝ (IDR Rupiah)",
+    rateUsdToIdr: "1 USD ＝ (IDR Rupiah)",
+    rateCalculated: "Exchange Rate Reference:",
+    btnResetRates: "Reset to Default Rates",
+    sec3Title: "③ BCP (Backup & Critical Loads)",
+    bcpTargetHoursLabel: "Target Backup Duration During Blackout (BCP Goal)",
+    hoursUnit: "Hours",
+    importantLoadsLabel: "Critical Equipment Required During Power Outages",
+    customLoadKwLabel: "Total Critical Load (kW) — Auto-calculated or manual override",
+    sec4Title: "④ Corporate Tax Incentive Prerequisites",
+    corpScaleLabel: "Company Scale Classification",
+    isAoiroLabel: "Blue Return Tax Filing Status (Mandatory for Incentive)",
+    isAoiroYes: "Filing Blue Tax Return (Eligible)",
+    isAoiroNo: "White Return / Standard",
+    kogyoCertLabel: "Industrial Association Certificate (Type A Determination)",
+    kogyoCertYes: "Available (Eligible for Type A: 100% Deprec / 10% Credit)",
+    kogyoCertNo: "Unavailable or Pending (Review Type B)",
+    annualProfitLabel: "Estimated Annual Taxable Income (USD)",
+    btnGoToResult: "View Full Diagnosis Report →",
+    sec5Title: "⑤ Product & EPC Price Master (Optional)",
+    masterToggle: "View / Modify Product & EPC Unit Price Master",
+    toggleClose: "▲ Close",
+    toggleOpen: "▼ Show",
+    resultBackBtn: "← Back to Input",
+    companyPlaceholder: "Company Name (e.g. Acme Corp)",
+    btnPptxExport: "Create PowerPoint Presentation (.pptx)",
+    btnPdfExport: "Download PDF Proposal Report",
+    targetProperty: "Property Under Diagnosis",
+    noAddress: "(Address not specified)",
+    overallRank: "Feasibility Rating",
+    rankA: "Highly Recommended",
+    rankB: "High Investment Value",
+    rankC: "BCP Priority Candidate",
+    rankD: "Requires Re-evaluation",
+    cardCapacity: "PV Capacity",
+    cardBattery: "BESS Storage",
+    cardGen: "Annual Solar Output",
+    cardSelfRate: "Self-Consumption",
+    sheetsSub: "{sheets} Panels",
+    batteryUnitSub: "{units} Battery Units",
+    withBatterySub: "Including Battery Storage",
+    secEconTitle: "Economic Feasibility & Savings (in USD $)",
+    annualSaving: "Annual Utility Savings",
+    investmentCost: "Total EPC Investment (Pre-tax)",
+    paybackYears: "Payback Period",
+    afterTax: "Post-Tax Incentive",
+    perYear: "/year",
+    standardBase: "Standard Configuration Base",
+    chartTitle: "20-Year Projected Cumulative Cash Flow (USD)",
+    yearUnit: "Year",
+    cumProfit20: "20-Year Cumulative Profit: ",
+    withTaxProfit: "With Tax Incentives: ",
+    secBcpTitle: "BCP (Business Continuity Plan) Value",
+    recBatteryCap: "Recommended Storage Capacity",
+    recBatteryMin: "Required Min: {req} kWh",
+    backupHoursLabel: "Emergency Backup Duration",
+    backupHoursSub: "Critical Load {load} kW · Target {hours} h",
+    bcpAvoidVal: "Avoided Outage Loss Value",
+    perOutage: "/blackout incident",
+    secTaxTitle: "Corporate Tax Incentives",
+    applicableTaxScheme: "Applicable Tax Incentive Program",
+    maxTaxSaving: "Maximum Tax Savings",
+    taxSchemeChoiceTitle: "Strategy Selection Based on Corporate Financial Goals",
+    priorityCashflow: "💰 Cash Flow / Liquidity Priority",
+    priorityTotal: "📊 Maximum Net Tax Savings Priority",
+    recImmediate: "Recommended: Immediate Depreciation (即時償却)",
+    recImmediateDesc: "Cash refund of +{firstYear} in Year 1 (tax deferral; total {total}). Recommended for companies prioritizing rapid capital recovery.",
+    recTaxCredit: "Recommended: Direct Tax Credit (税額控除)",
+    recTaxCreditDesc: "Direct corporate tax deduction of {credit} (permanent tax cut). Optimal for businesses maximizing long-term net savings.",
+    checklistTitle: "Procedure & Filing Checklist",
+    certAlertTitle: "⚠ Confirm Industrial Association Certificate with Manufacturer",
+    certAlertDesc: "Certificate availability dictates Type A (streamlined) vs Type B (investment plan) scheme",
+    secEnvTitle: "Environmental & ESG Contribution",
+    co2ReductionLabel: "Annual CO2 Emission Reduction",
+    co2Unit: "Tons-CO2",
+    cedarTreesLabel: "Cedar Trees Equivalent",
+    cedarTreesUnit: "Trees/year",
+    cedarDesc: "1 cedar tree absorbs approx. 14 kg CO2/year",
+    footerNoticeTitle: "About This Diagnosis",
+    footerNotice1: "※ This simulation is an engineering estimate with flexible currency rates and does not constitute a binding financial warranty. Official proposal is presented after on-site audit.",
+    footerNotice2: "※ Our commercial-grade PV and BESS hardware qualify corporate clients for generous corporate tax incentive programs under applicable law.",
+    footerNotice3: "※ Applying for tax incentives requires pre-filing within the asset acquisition fiscal year. Consult your tax accountant and GO Power specialists.",
+    mapInstruction0: "👆 Tap / click the corners of the roof in order",
+    mapInstruction1: "✏️ Continue by tapping the 2nd vertex",
+    mapInstruction2: "✏️ Add 1 more point to complete the roof polygon",
+    mapInstruction3: "✓ {count} points selected (drag markers to fine-tune shape)",
+    mapMeasuredArea: "Measured Area",
+    mapAdoptBtn: "Adopt This Area →",
+    mapUndoBtn: "↶ Undo Point",
+    mapClearBtn: "🗑 Clear All",
+    mapCloseBtn: "Close Map",
+    mapGuideTitle: "How to use:",
+    mapGuide1: "Tap the corners of the building roof sequentially. Polygon area is calculated automatically when 3 or more points are placed.",
+    mapGuideTitle2: "Fine Adjustment:",
+    mapGuide2: "You can drag and drop any red marker to match the exact roof profile. The area recalculates automatically.",
+    mapGuideTitle3: "Navigation:",
+    mapGuide3: "Pinch or scroll to zoom, drag to pan. Switch between Hybrid, Satellite, or Roadmap layers freely."
+  }
+};
+
+// ============================================================
+// フォーマット関数 (JPY / IDR / USD 動的レート対応)
+// ============================================================
+
+function formatMoneyWithRates(jpyVal, lang = 'ja', jpyToIdr = 110, usdToIdr = 17750) {
+  const val = jpyVal || 0;
+  if (lang === 'id') {
+    const idr = val * jpyToIdr;
+    if (Math.abs(idr) >= 1000000000) {
+      return `Rp ${(idr / 1000000000).toFixed(2)} Miliar`;
+    } else if (Math.abs(idr) >= 1000000) {
+      return `Rp ${Math.round(idr / 1000000).toLocaleString('id-ID')} Juta`;
+    } else {
+      return `Rp ${Math.round(idr).toLocaleString('id-ID')}`;
+    }
+  } else if (lang === 'en') {
+    const usd = (val * jpyToIdr) / (usdToIdr || 17750);
+    if (Math.abs(usd) >= 1000000) {
+      return `$${(usd / 1000000).toFixed(2)}M`;
+    } else {
+      return `$${Math.round(usd).toLocaleString('en-US')}`;
+    }
+  } else {
+    const manVal = Math.round(val / 10000).toLocaleString();
+    return `${manVal} 万円`;
+  }
+}
+
+function formatChartAxisWithRates(jpyVal, lang = 'ja', jpyToIdr = 110, usdToIdr = 17750) {
+  const val = jpyVal || 0;
+  if (lang === 'id') {
+    const idr = val * jpyToIdr;
+    if (Math.abs(idr) >= 1000000000) {
+      return `Rp ${(idr / 1000000000).toFixed(1)}M`;
+    }
+    return `Rp ${Math.round(idr / 1000000)}Jt`;
+  } else if (lang === 'en') {
+    const usd = (val * jpyToIdr) / (usdToIdr || 17750);
+    if (Math.abs(usd) >= 1000000) {
+      return `$${(usd / 1000000).toFixed(1)}M`;
+    }
+    return `$${Math.round(usd / 1000)}k`;
+  } else {
+    return `${(val / 10000).toFixed(0)}万`;
+  }
+}
+
+// ============================================================
+// 定数・マスタデータ
+// ============================================================
+
+const JIKASHOHI_RATES = {
+  '工場倉庫_冷蔵あり': { baseRate: 0.75, withBattery: 0.95, label: { ja: '工場・倉庫（冷蔵あり）', id: 'Pabrik / Gudang (Ada Pendingin)', en: 'Factory / Warehouse (Cold Storage)' } },
+  '工場倉庫_冷蔵なし': { baseRate: 0.60, withBattery: 0.85, label: { ja: '工場・倉庫（冷蔵なし）', id: 'Pabrik / Gudang (Tanpa Pendingin)', en: 'Factory / Warehouse (Standard)' } },
+  '事務所':             { baseRate: 0.50, withBattery: 0.75, label: { ja: '事務所・オフィス', id: 'Gedung Kantor / Komersial', en: 'Office Building' } },
+  '店舗':               { baseRate: 0.65, withBattery: 0.85, label: { ja: '店舗・スーパー', id: 'Toko / Supermarket', en: 'Retail Store / Supermarket' } },
+  '病院福祉':           { baseRate: 0.70, withBattery: 0.92, label: { ja: '病院・福祉施設', id: 'Rumah Sakit / Fasilitas Medis', en: 'Hospital / Healthcare' } },
+  '個人宅_昼型':        { baseRate: 0.35, withBattery: 0.70, label: { ja: '個人宅（昼型・在宅）', id: 'Rumah Tinggal (Siang di Rumah)', en: 'Residential (Daytime Active)' } },
+  '個人宅_夜型':        { baseRate: 0.25, withBattery: 0.65, label: { ja: '個人宅（夜型・不在）', id: 'Rumah Tinggal (Malam Hari)', en: 'Residential (Night Active)' } }
+};
+
+const ROOF_SHAPES = {
+  '折板':   { coeff: 0.65, label: { ja: '折板（工場・倉庫向け）', id: 'Atap Seng Lipat (Pabrik/Gudang)', en: 'Folded Plate (Factory/Warehouse)' } },
+  '切妻':   { coeff: 0.45, label: { ja: '切妻 (戸建て向け)', id: 'Atap Pelana (Rumah/Gedung)', en: 'Gabled (Residential/Commercial)' } },
+  '平屋根': { coeff: 0.55, label: { ja: '平屋根', id: 'Atap Datar (Flat Roof)', en: 'Flat Roof' } },
+  '陸屋根': { coeff: 0.60, label: { ja: '陸屋根（RCコンクリート）', id: 'Atap Datar Beton RC', en: 'RC Concrete Flat Roof' } }
+};
+
+const IMPORTANT_LOADS = {
+  '冷蔵庫': { kw: 1.5, label: { ja: '冷蔵・冷凍庫（在庫保護）', id: 'Kulkas / Freezer (Proteksi Stok)', en: 'Refrigerators & Freezers' } },
+  '制御盤': { kw: 0.8, label: { ja: '基幹システム・制御盤', id: 'Sistem Inti & Panel Kontrol', en: 'Control Panels & Core IT' } },
+  '通信':   { kw: 0.3, label: { ja: '通信・セキュリティ機器', id: 'Perangkat Komunikasi & CCTV', en: 'Telecom & Security Equipment' } },
+  '照明':   { kw: 0.5, label: { ja: '非常用照明・コンセント', id: 'Penerangan Darurat & Stop Kontak', en: 'Emergency Lighting & Sockets' } },
+  'ポンプ': { kw: 1.2, label: { ja: '給排水ポンプ', id: 'Pompa Air & Drainase', en: 'Water Supply Pumps' } },
+  'その他': { kw: 0.5, label: { ja: 'その他重要負荷', id: 'Beban Kritis Lainnya', en: 'Other Critical Loads' } }
+};
+
+const CORP_SCALES = {
+  'sme_100m': { label: { ja: '中小企業（資本金1億円以下）', id: 'UKM (Modal <= Rp 11 Miliar)', en: 'SME (Capital <= $620k)' } },
+  'small_30m': { label: { ja: '小規模企業（資本金3,000万円以下 / 個人事業主）', id: 'Usaha Mikro/Kecil (Modal <= Rp 3,3 Miliar / Perorangan)', en: 'Small Business (Capital <= $186k / Sole Proprietor)' } },
+  'large': { label: { ja: '大企業（資本金1億円超）', id: 'Perusahaan Besar (Modal > Rp 11 Miliar)', en: 'Large Enterprise (Capital > $620k)' } }
+};
+
+const DEFAULT_PRODUCT_MASTER = {
+  panelW: 400,
+  panelUnitPrice: 32000,
+  panelAreaM2: 2.0,
+  batteryUnitPrice: 950000,
+  batteryUnitKwh: 16.07,
+  installationPerKw: 45000
+};
+
+const ELECTRICITY_RATES = {
+  '工場倉庫_冷蔵あり': 22,
+  '工場倉庫_冷蔵なし': 23,
+  '事務所': 24,
+  '店舗': 25,
+  '病院福祉': 23,
+  '個人宅_昼型': 31,
+  '個人宅_夜型': 31
+};
+
+const SOLAR_RADIATION_BY_PREF = {
+  '北海道': 3.45, '青森県': 3.38, '岩手県': 3.52, '宮城県': 3.65, '秋田県': 3.25,
+  '山形県': 3.42, '福島県': 3.68, '茨城県': 3.75, '栃木県': 3.72, '群馬県': 3.82,
+  '埼玉県': 3.78, '千葉県': 3.80, '東京都': 3.76, '神奈川県': 3.82, '新潟県': 3.35,
+  '富山県': 3.32, '石川県': 3.38, '福井県': 3.45, '山梨県': 4.05, '長野県': 3.95,
+  '岐阜県': 3.80, '静岡県': 4.10, '愛知県': 3.92, '三重県': 3.88, '滋賀県': 3.65,
+  '京都府': 3.60, '大阪府': 3.78, '兵庫県': 3.82, '奈良県': 3.72, '和歌山県': 3.95,
+  '鳥取県': 3.48, '島根県': 3.52, '岡山県': 3.98, '広島県': 3.88, '山口県': 3.82,
+  '徳島県': 3.95, '香川県': 3.98, '愛媛県': 3.88, '高知県': 4.02, '福岡県': 3.72,
+  '佐賀県': 3.75, '長崎県': 3.68, '熊本県': 3.82, '大分県': 3.78, '宮崎県': 4.08,
+  '鹿児島県': 3.92, '沖縄県': 4.05
+};
+
+// ============================================================
+// 演算ロジック
+// ============================================================
+
+function getInsolation(pref) {
+  return SOLAR_RADIATION_BY_PREF[pref] || 3.75;
+}
+
+function getPrefecture(addr) {
+  if (!addr) return '愛知県';
+  for (const p of Object.keys(SOLAR_RADIATION_BY_PREF)) {
+    if (addr.includes(p)) return p;
+  }
+  return '愛知県';
+}
+
+function calcCapacity(roofArea, roofShape) {
+  const coeff = ROOF_SHAPES[roofShape]?.coeff || 0.55;
+  const effectiveArea = roofArea * coeff;
+  const sheets = Math.floor(effectiveArea / DEFAULT_PRODUCT_MASTER.panelAreaM2);
+  const capacityKw = (sheets * DEFAULT_PRODUCT_MASTER.panelW) / 1000;
+  return { effectiveArea, sheets, capacityKw };
+}
+
+function calcAnnualGeneration(capacityKw, pref) {
+  const insolation = getInsolation(pref);
+  return capacityKw * insolation * 365 * 0.85;
+}
+
+function calcSelfConsumptionRate(buildingType, batteryKwh, capacityKw) {
+  const info = JIKASHOHI_RATES[buildingType] || JIKASHOHI_RATES['工場倉庫_冷蔵あり'];
+  if (batteryKwh <= 0) return info.baseRate;
+  const ratio = Math.min(batteryKwh / Math.max(capacityKw * 2, 1), 1.0);
+  return info.baseRate + (info.withBattery - info.baseRate) * ratio;
+}
+
+function calcRequiredBatteryKwh(loadKw, bcpHours) {
+  return (loadKw * bcpHours) / 0.8;
+}
+
+function calcRecommendedBatteryKwh(buildingType, requiredKwh) {
+  const unitKwh = DEFAULT_PRODUCT_MASTER.batteryUnitKwh;
+  const units = Math.max(Math.ceil(requiredKwh / unitKwh), 1);
+  return units * unitKwh;
+}
+
+function calcAnnualSaving(annualGen, selfRate, elecRate, monthlyBill) {
+  const selfKwh = annualGen * selfRate;
+  const rawSaving = selfKwh * elecRate;
+  const annualBill = monthlyBill * 12;
+  return Math.min(rawSaving, annualBill * 0.95);
+}
+
+function calcInvestment(sheets, capacityKw, batteryKwh, master) {
+  const pMaster = master || DEFAULT_PRODUCT_MASTER;
+  const panelCost = sheets * pMaster.panelUnitPrice;
+  const units = Math.ceil(batteryKwh / pMaster.batteryUnitKwh);
+  const batteryCost = units * pMaster.batteryUnitPrice;
+  const installCost = capacityKw * pMaster.installationPerKw;
+  return panelCost + batteryCost + installCost;
+}
+
+function calcPaybackYears(investment, annualSaving) {
+  if (annualSaving <= 0) return 99.9;
+  return investment / annualSaving;
+}
+
+function calcRank(payback, roofArea, selfRate) {
+  if (payback <= 7.0 && roofArea >= 200) return 'A';
+  if (payback <= 10.0) return 'B';
+  if (selfRate >= 0.70) return 'C';
+  return 'D';
+}
+
+function calcBcpValue(loadKw, bcpHours, hourlyLossRate = 30000) {
+  return loadKw * bcpHours * hourlyLossRate;
+}
+
+function calcCo2Reduction(annualGen) {
+  return (annualGen * 0.441) / 1000;
+}
+
+function selectTaxScheme(input, lang = 'ja') {
+  const { investment, capital, isAoiro, profit, jikashohi, kogyoshomeisho, effectiveTaxRate = 0.30 } = input;
+  
+  if (!isAoiro) {
+    return {
+      type: {
+        ja: '適用対象外（青色申告が必要）',
+        id: 'Tidak Memenuhi Syarat (Wajib SPT Biru)',
+        en: 'Ineligible (Blue Tax Return Required)'
+      },
+      summary: {
+        ja: '税制優遇の適用には青色申告法人の要件を満たす必要があります。',
+        id: 'Fasilitas insentif pajak korporasi mensyaratkan status Wajib Pajak SPT Biru.',
+        en: 'Corporate tax incentive qualification requires filing a Blue Tax Return.'
+      },
+      taxSaving: 0,
+      aType: false,
+      details: [],
+      requirements: {
+        ja: ['青色申告承認申請書の提出と承認'],
+        id: ['Pengajuan dan persetujuan status Wajib Pajak SPT Biru'],
+        en: ['Submission and approval of Blue Tax Return application']
+      }
+    };
+  }
+  const isSme = capital <= 100000000;
+  const isSmallSme = capital <= 30000000;
+  if (isSme && kogyoshomeisho === 'Y') {
+    const sokujiSaving = investment * effectiveTaxRate;
+    const taxCreditRate = isSmallSme ? 0.10 : 0.07;
+    const nominalTaxCredit = investment * taxCreditRate;
+    const corpTaxEst = profit * effectiveTaxRate;
+    const taxCreditLimit = corpTaxEst * 0.20;
+    const actualTaxCredit = Math.min(nominalTaxCredit, taxCreditLimit);
+
+    return {
+      type: {
+        ja: '中小企業経営強化税制（A類型）',
+        id: 'Insentif Peningkatan Manajemen UKM (Tipe A)',
+        en: 'SME Management Enhancement Tax System (Type A)'
+      },
+      summary: {
+        ja: '生産性向上設備として「即時償却」または「取得額の税額控除」を選択適用可能です。',
+        id: 'Sebagai fasilitas peningkatan produktivitas, Anda dapat memilih antara "Amortisasi Kilat 100%" atau "Potongan Pajak 10%".',
+        en: 'Eligible for either "100% Immediate Depreciation" or "Direct Tax Credit" as productivity-enhancing assets.'
+      },
+      taxSaving: Math.max(sokujiSaving, actualTaxCredit),
+      aType: true,
+      sokujiFirstYearCf: sokujiSaving,
+      sokujiTotalCf: sokujiSaving,
+      actualTaxCredit: actualTaxCredit,
+      details: [
+        {
+          label: {
+            ja: '即時償却（初年度損金算入）',
+            id: 'Amortisasi Kilat (Beban Penuh Thn-1)',
+            en: 'Immediate Depreciation (100% Year-1 Expense)'
+          },
+          value: sokujiSaving
+        },
+        {
+          label: {
+            ja: `税額控除（${(taxCreditRate * 100).toFixed(0)}%）`,
+            id: `Potongan Pajak Langsung (${(taxCreditRate * 100).toFixed(0)}%)`,
+            en: `Direct Tax Credit (${(taxCreditRate * 100).toFixed(0)}%)`
+          },
+          value: actualTaxCredit
+        }
+      ],
+      requirements: {
+        ja: [
+          '① メーカー経由で工業会証明書を取得',
+          '② 経営力向上計画を策定し、主務大臣へ申請・認定（2027年3月末まで）',
+          '③ 計画認定後に設備を取得・事業供用開始',
+          '④ 確定申告時に認定書写しと明細書を添付'
+        ],
+        id: [
+          '① Memperoleh Sertifikat Asosiasi Industri melalui produsen/vendor',
+          '② Menyusun Rencana Peningkatan Manajemen & disetujui kementerian terkait',
+          '③ Pengadaan & mulai pengoperasian aset setelah persetujuan rencana',
+          '④ Melampirkan salinan surat keputusan persetujuan dan rincian saat pelaporan SPT Tahunan'
+        ],
+        en: [
+          '① Obtain Industrial Association Certificate via manufacturer/vendor',
+          '② Formulate Management Enhancement Plan and obtain ministerial approval',
+          '③ Acquire and commission equipment after plan certification',
+          '④ Attach approval copy and itemized statement to annual corporate tax return'
+        ]
+      },
+      recommendation: {
+        ja: '手元資金の早期回収を重視するなら「即時償却」、累計減税額の最大化なら「税額控除」が有利です。',
+        id: 'Pilih "Amortisasi Kilat" jika memprioritaskan likuiditas modal awal, atau "Potongan Pajak" jika ingin memaksimalkan total pemotongan pajak.',
+        en: 'Choose "Immediate Depreciation" for rapid early cash recovery, or "Tax Credit" to maximize cumulative tax reduction.'
+      }
+    };
+  } else if (isSme) {
+    const tokubetsuSaving = investment * 0.30 * effectiveTaxRate;
+    return {
+      type: {
+        ja: '中小企業投資促進税制（特別償却30%）',
+        id: 'Insentif Promosi Investasi UKM (Depresiasi Khusus 30%)',
+        en: 'SME Investment Promotion Tax Incentive (30% Special Depreciation)'
+      },
+      summary: {
+        ja: '工業会証明書がない場合でも、特別償却30%による税負担軽減が可能です。',
+        id: 'Meskipun tanpa sertifikat asosiasi industri, Anda dapat memanfaatkan depresiasi khusus 30% untuk meringankan beban pajak.',
+        en: 'Even without an industrial association certificate, a 30% special depreciation is applicable to reduce taxes.'
+      },
+      taxSaving: tokubetsuSaving,
+      aType: false,
+      details: [
+        {
+          label: {
+            ja: '特別償却（取得額の30%損金算入）',
+            id: 'Depresiasi Khusus (30% Beban Tahun Pertama)',
+            en: 'Special Depreciation (30% Year-1 Expense)'
+          },
+          value: tokubetsuSaving
+        }
+      ],
+      requirements: {
+        ja: [
+          '① 青色申告書を提出する中小企業者であること',
+          '② 設備取得事業年度の確定申告にて明細書添付'
+        ],
+        id: [
+          '① Wajib Pajak UKM berstatus SPT Pajak Biru',
+          '② Melampirkan rincian pada SPT Tahunan tahun perolehan aset'
+        ],
+        en: [
+          '① Must be an eligible SME filing a Blue Tax Return',
+          '② Attach itemized statement with the corporate tax return of the acquisition year'
+        ]
+      },
+      recommendation: {
+        ja: '工業会証明書が取得できれば、より有利なA類型（即時償却）へ切り替え可能です。',
+        id: 'Jika sertifikat asosiasi industri dapat diperoleh, Anda dapat beralih ke Tipe A yang lebih menguntungkan (Amortisasi Kilat).',
+        en: 'If an industrial association certificate is obtained, you can upgrade to the more advantageous Type A scheme.'
+      }
+    };
+  } else {
+    return {
+      type: {
+        ja: '大企業向け制度（要確認）',
+        id: 'Skema Perusahaan Besar (Perlu Konfirmasi Khusus)',
+        en: 'Large Enterprise Incentive Framework (Custom Review)'
+      },
+      summary: {
+        ja: '資本金1億円超の大企業は中小企業特例の対象外ですが、カーボンニュートラル投資促進税制等の適用可否を検討可能です。',
+        id: 'Perusahaan dengan modal > Rp 11 Miliar dapat mengevaluasi skema Insentif Investasi Netralitas Karbon (CN).',
+        en: 'Enterprises with capital > $620,000 can evaluate Carbon Neutrality Investment Incentives and related frameworks.'
+      },
+      taxSaving: investment * 0.05,
+      aType: false,
+      details: [],
+      requirements: {
+        ja: ['顧問税理士または経済産業省への個別要件確認'],
+        id: ['Konsultasi spesifik dengan konsultan pajak atau kementerian terkait'],
+        en: ['Individual requirement verification with certified tax accountant or METI']
+      }
+    };
+  }
+}
+
+// ============================================================
+// Google Maps ジオコーディング & サテライト測定コンポーネント
+// ============================================================
+
+async function geocodeAddress(address) {
+  if (!address) return null;
+  if (!window.google || !window.google.maps || !window.google.maps.Geocoder) {
+    console.warn('Google Maps SDK not ready');
+    return { lat: 35.1815, lng: 136.9066 };
+  }
+  return new Promise((resolve) => {
+    const geocoder = new window.google.maps.Geocoder();
+    geocoder.geocode({ address }, (results, status) => {
+      if (status === 'OK' && results && results[0]) {
+        const loc = results[0].geometry.location;
+        resolve({ lat: loc.lat(), lng: loc.lng() });
+      } else {
+        console.warn('Geocoding status:', status);
+        resolve(null);
+      }
+    });
+  });
+}
+
+function MapDrawingPanel({ initialCenter, onAreaConfirmed, onCancel, lang = 'ja' }) {
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const polygonRef = useRef(null);
+  const markersRef = useRef([]);
+  const [points, setPoints] = useState([]);
+  const [currentArea, setCurrentArea] = useState(0);
+  const [mapReady, setMapReady] = useState(false);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    if (!window.google || !window.google.maps) return;
+
+    const center = initialCenter || { lat: 35.1815, lng: 136.9066 };
+    const map = new window.google.maps.Map(mapRef.current, {
+      center,
+      zoom: 19,
+      mapTypeId: 'hybrid',
+      tilt: 0,
+      mapTypeControl: true,
+      streetViewControl: false,
+      fullscreenControl: true
+    });
+    mapInstanceRef.current = map;
+
+    map.addListener('click', (e) => {
+      const newPt = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+      setPoints(prev => [...prev, newPt]);
+    });
+
+    setMapReady(true);
+  }, [initialCenter]);
+
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !window.google || !window.google.maps) return;
+
+    markersRef.current.forEach(m => m.setMap(null));
+    markersRef.current = [];
+    if (polygonRef.current) {
+      polygonRef.current.setMap(null);
+      polygonRef.current = null;
+    }
+
+    points.forEach((pt, i) => {
+      const marker = new window.google.maps.Marker({
+        position: pt,
+        map,
+        draggable: true,
+        icon: {
+          path: window.google.maps.SymbolPath.CIRCLE,
+          scale: 13,
+          fillColor: '#C0392B',
+          fillOpacity: 1,
+          strokeColor: 'white',
+          strokeWeight: 2.5
+        }
+      });
+      marker.addListener('dragend', (e) => {
+        const newLat = e.latLng.lat();
+        const newLng = e.latLng.lng();
+        setPoints(prev => prev.map((p, idx) => idx === i ? { lat: newLat, lng: newLng } : p));
+      });
+      markersRef.current.push(marker);
+    });
+
+    if (points.length >= 3 && window.google.maps.geometry) {
+      const polygon = new window.google.maps.Polygon({
+        paths: points,
+        strokeColor: '#C0392B',
+        strokeOpacity: 0.9,
+        strokeWeight: 2,
+        fillColor: '#C0392B',
+        fillOpacity: 0.25,
+        map
+      });
+      polygonRef.current = polygon;
+      const path = polygon.getPath();
+      const area = window.google.maps.geometry.spherical.computeArea(path);
+      setCurrentArea(area);
+    } else {
+      setCurrentArea(0);
+    }
+  }, [points, mapReady]);
+
+  const handleUndo = () => setPoints(prev => prev.slice(0, -1));
+  const handleClear = () => setPoints([]);
+  const handleConfirm = () => {
+    if (points.length < 3) {
+      alert(lang === 'ja' ? '屋根の輪郭を3点以上タップしてください' : (lang === 'id' ? 'Tentukan minimal 3 titik sudut atap' : 'Please tap at least 3 vertices of the roof'));
+      return;
+    }
+    onAreaConfirmed(Math.round(currentArea));
+  };
+
+  const getInstruction = () => {
+    if (points.length === 0) return t.mapInstruction0;
+    if (points.length === 1) return t.mapInstruction1;
+    if (points.length === 2) return t.mapInstruction2;
+    return t.mapInstruction3.replace('{count}', points.length);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="map-container">
+        <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
+        <div className="map-overlay-instruction">{getInstruction()}</div>
+        {points.length >= 3 && (
+          <div className="map-overlay-result">
+            <div>
+              <div style={{ fontSize: 11, opacity: 0.85 }}>{t.mapMeasuredArea}</div>
+              <div style={{ fontSize: 22, fontWeight: 900 }}>
+                {Math.round(currentArea).toLocaleString()} ㎡
+              </div>
+            </div>
+            <button
+              onClick={handleConfirm}
+              style={{
+                background: 'white',
+                color: 'var(--gp-red)',
+                padding: '10px 20px',
+                borderRadius: 6,
+                fontWeight: 700,
+                fontSize: 14
+              }}
+            >
+              {t.mapAdoptBtn}
+            </button>
+          </div>
+        )}
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        <button onClick={handleUndo} className="gp-btn-ghost px-4 py-2 rounded-md text-sm font-semibold" disabled={points.length === 0}>
+          {t.mapUndoBtn}
+        </button>
+        <button onClick={handleClear} className="gp-btn-ghost px-4 py-2 rounded-md text-sm font-semibold" disabled={points.length === 0}>
+          {t.mapClearBtn}
+        </button>
+        <button onClick={onCancel} className="gp-btn-ghost px-4 py-2 rounded-md text-sm font-semibold ml-auto">
+          {t.mapCloseBtn}
+        </button>
+      </div>
+      <div className="text-xs text-gray-500" style={{ lineHeight: 1.6 }}>
+        <b>{t.mapGuideTitle}</b> {t.mapGuide1}<br/>
+        <b>{t.mapGuideTitle2}</b> {t.mapGuide2}<br/>
+        <b>{t.mapGuideTitle3}</b> {t.mapGuide3}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// メインアプリコンポーネント (App Component)
+// ============================================================
+
+function App() {
+  const [lang, setLang] = useState(() => {
+    try {
+      return localStorage.getItem('gopower_lang') || 'ja';
+    } catch(e) {
+      return 'ja';
+    }
+  });
+
+  // 動的為替レート設定 (localStorage永続化)
+  const [jpyToIdrRate, setJpyToIdrRate] = useState(() => {
+    try {
+      const val = parseFloat(localStorage.getItem('gopower_jpy_to_idr'));
+      return !isNaN(val) && val > 0 ? val : 110;
+    } catch(e) {
+      return 110;
+    }
+  });
+
+  const [usdToIdrRate, setUsdToIdrRate] = useState(() => {
+    try {
+      const val = parseFloat(localStorage.getItem('gopower_usd_to_idr'));
+      return !isNaN(val) && val > 0 ? val : 17750;
+    } catch(e) {
+      return 17750;
+    }
+  });
+
+  const updateJpyToIdrRate = (r) => {
+    setJpyToIdrRate(r);
+    try { localStorage.setItem('gopower_jpy_to_idr', r); } catch(e) {}
+  };
+
+  const updateUsdToIdrRate = (r) => {
+    setUsdToIdrRate(r);
+    try { localStorage.setItem('gopower_usd_to_idr', r); } catch(e) {}
+  };
+
+  const changeLanguage = (newLang) => {
+    setLang(newLang);
+    try {
+      localStorage.setItem('gopower_lang', newLang);
+    } catch(e) {}
+  };
+
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+
+  const [showDisclaimer, setShowDisclaimer] = useState(true);
+  const [activeTab, setActiveTab] = useState('input');
+
+  // 入力状態
+  const [address, setAddress] = useState('');
+  const [buildingType, setBuildingType] = useState('工場倉庫_冷蔵あり');
+  const [roofShape, setRoofShape] = useState('折板');
+  const [roofArea, setRoofArea] = useState(500);
+  const [areaSource, setAreaSource] = useState(null);
+
+  // 屋根面積取得モード: 'map' | 'manual'
+  const [roofAreaMode, setRoofAreaMode] = useState('map');
+  const [mapCenter, setMapCenter] = useState(null);
+  const [showMap, setShowMap] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
+  const [geocodeError, setGeocodeError] = useState(null);
+
+  const [monthlyBill, setMonthlyBill] = useState(150000);
+  const [electricityRate, setElectricityRate] = useState(22);
+
+  const [importantLoads, setImportantLoads] = useState({
+    '冷蔵庫': true, '制御盤': true, '通信': false,
+    '照明': true, 'ポンプ': false, 'その他': false
+  });
+  const [loadKw, setLoadKw] = useState(2.0);
+  const [bcpHours, setBcpHours] = useState(8);
+
+  const [productMaster, setProductMaster] = useState(DEFAULT_PRODUCT_MASTER);
+
+  const [isCorps, setIsCorps] = useState(true);
+  const [capital, setCapital] = useState(30000000);
+  const [isAoiro, setIsAoiro] = useState(true);
+  const [profit, setProfit] = useState(20000000);
+  const [kogyoshomeisho, setKogyoshomeisho] = useState('Y');
+  const [effectiveTaxRate, setEffectiveTaxRate] = useState(0.30);
+
+  useEffect(() => {
+    setElectricityRate(ELECTRICITY_RATES[buildingType] || 22);
+  }, [buildingType]);
+
+  useEffect(() => {
+    if (buildingType.startsWith('個人宅')) {
+      setIsCorps(false);
+    } else {
+      setIsCorps(true);
+    }
+  }, [buildingType]);
+
+  useEffect(() => {
+    let total = 0;
+    Object.entries(importantLoads).forEach(([key, checked]) => {
+      if (checked) total += IMPORTANT_LOADS[key]?.kw || 0;
+    });
+    if (total > 0) setLoadKw(parseFloat(total.toFixed(2)));
+  }, [importantLoads]);
+
+  // 地図描画モードの起動
+  const handleOpenMap = async () => {
+    if (!address) {
+      alert(lang === 'ja' ? 'まず住所を入力してください' : (lang === 'id' ? 'Masukkan alamat terlebih dahulu' : 'Please enter an address first'));
+      return;
+    }
+    setGeocoding(true);
+    setGeocodeError(null);
+    const loc = await geocodeAddress(address);
+    setGeocoding(false);
+    if (!loc) {
+      setGeocodeError(lang === 'ja' ? '住所の位置情報が取得できませんでした。住所を見直してください。' : (lang === 'id' ? 'Koordinat alamat tidak ditemukan. Silakan periksa kembali alamat.' : 'Could not geocode address location. Please check the address string.'));
+      return;
+    }
+    setMapCenter(loc);
+    setShowMap(true);
+  };
+
+  const handleAreaConfirmed = (area) => {
+    setRoofArea(area);
+    setShowMap(false);
+    setAreaSource('map');
+  };
+
+  // 計算結果 (Base JPY, Dynamic IDR & USD conversion)
+  const result = useMemo(() => {
+    const prefecture = getPrefecture(address);
+    const { effectiveArea, sheets, capacityKw } = calcCapacity(roofArea, roofShape);
+    const annualGen = calcAnnualGeneration(capacityKw, prefecture);
+
+    const requiredBattery = calcRequiredBatteryKwh(loadKw, bcpHours);
+    const recommendedBattery = calcRecommendedBatteryKwh(buildingType, requiredBattery);
+    const actualBatteryKwh = Math.ceil(recommendedBattery / DEFAULT_PRODUCT_MASTER.batteryUnitKwh) * DEFAULT_PRODUCT_MASTER.batteryUnitKwh;
+
+    const selfConsumptionRate = calcSelfConsumptionRate(buildingType, actualBatteryKwh, capacityKw);
+    const annualSaving = calcAnnualSaving(annualGen, selfConsumptionRate, electricityRate, monthlyBill);
+    const investment = calcInvestment(sheets, capacityKw, actualBatteryKwh, productMaster);
+    const payback = calcPaybackYears(investment, annualSaving);
+    const rank = calcRank(payback, roofArea, selfConsumptionRate);
+    const bcpValue = calcBcpValue(loadKw, bcpHours);
+    const co2Reduction = calcCo2Reduction(annualGen);
+    const profit20 = annualSaving * 20 - investment;
+
+    const rawBackupHours = loadKw > 0 ? (actualBatteryKwh * 0.8) / loadKw : 0;
+    const backupHours = Math.min(Math.max(rawBackupHours, 0), bcpHours);
+
+    let taxScheme = null;
+    if (isCorps) {
+      taxScheme = selectTaxScheme({
+        investment, capital, isAoiro, profit,
+        jikashohi: selfConsumptionRate, kogyoshomeisho, effectiveTaxRate
+      }, lang);
+    }
+
+    const paybackAfterTax = taxScheme && taxScheme.taxSaving > 0
+      ? calcPaybackYears(investment - taxScheme.taxSaving, annualSaving)
+      : payback;
+
+    return {
+      prefecture,
+      effectiveArea,
+      sheets,
+      capacityKw,
+      annualGen,
+      requiredBattery,
+      recommendedBattery,
+      actualBatteryKwh,
+      selfConsumptionRate,
+      annualSaving,
+      investment,
+      payback,
+      rank,
+      bcpValue,
+      co2Reduction,
+      profit20,
+      backupHours,
+      taxScheme,
+      paybackAfterTax
+    };
+  }, [
+    address, roofArea, roofShape, buildingType, loadKw, bcpHours,
+    electricityRate, monthlyBill, productMaster, isCorps, capital,
+    isAoiro, profit, kogyoshomeisho, effectiveTaxRate, lang
+  ]);
+
+  // キャッシュフローデータ
+  const cashflowData = useMemo(() => {
+    const data = [];
+    let cum = -result.investment;
+    data.push({ year: 0, cumulative: Math.round(cum) });
+    for (let y = 1; y <= 20; y++) {
+      cum += result.annualSaving;
+      data.push({ year: y, cumulative: Math.round(cum) });
+    }
+    return data;
+  }, [result.investment, result.annualSaving]);
+
+  // PDF出力
+  const handlePdfExport = async () => {
+    const el = document.getElementById('result-section');
+    if (!el) return;
+    try {
+      const canvas = await html2canvas(el, { scale: 2, useCORS: true, logging: false });
+      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      const prefix = lang === 'id' ? 'Proposal_GoPower_IDR' : (lang === 'en' ? 'GoPower_Proposal_USD' : 'GOパワー提案書');
+      pdf.save(`${prefix}_${(address || 'Report').slice(0, 10)}_${new Date().toISOString().slice(0,10)}.pdf`);
+    } catch (e) {
+      console.error('PDF export failed:', e);
+      window.print();
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* 入口免責ダイアログ */}
+      {showDisclaimer && (
+        <div className="disclaimer-overlay">
+          <div className="disclaimer-box">
+            <div className="flex items-center justify-between mb-4">
+              <img src={GOPOWER_LOGO} alt="GO Power" style={{ height: 40, width: 'auto' }} />
+              <div className="lang-switcher">
+                <button className={`lang-btn ${lang === 'id' ? 'active' : ''}`} onClick={() => changeLanguage('id')}>🇮🇩 ID</button>
+                <button className={`lang-btn ${lang === 'ja' ? 'active' : ''}`} onClick={() => changeLanguage('ja')}>🇯🇵 JA</button>
+                <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => changeLanguage('en')}>🇬🇧 EN</button>
+              </div>
+            </div>
+            <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--gp-red)' }}>
+              {t.disclaimerTitle}
+            </h2>
+            <div className="text-xs text-gray-500 mb-4">{t.disclaimerSub}</div>
+
+            <div className="space-y-3 text-sm" style={{ lineHeight: 1.7 }}>
+              <div className="p-3 rounded-md" style={{ background: '#FDF2E9', borderLeft: '4px solid var(--gp-red)' }}>
+                <div className="font-bold text-gray-900 mb-1">1. {t.disclaimerItem1Title}</div>
+                <div className="text-xs text-gray-700">{t.disclaimerItem1Desc}</div>
+              </div>
+
+              <div className="p-3 rounded-md" style={{ background: '#E8F6F3', borderLeft: '4px solid var(--gp-teal)' }}>
+                <div className="font-bold text-gray-900 mb-1">2. {t.disclaimerItem2Title}</div>
+                <div className="text-xs text-gray-700">{t.disclaimerItem2Desc}</div>
+              </div>
+
+              <div className="p-3 rounded-md" style={{ background: '#FEF9E7', borderLeft: '4px solid var(--gp-gold)' }}>
+                <div className="font-bold text-gray-900 mb-1">3. {t.disclaimerItem3Title}</div>
+                <div className="text-xs text-gray-700">{t.disclaimerItem3Desc}</div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowDisclaimer(false)}
+              className="gp-btn-primary w-full py-3 rounded-md font-bold mt-6 text-sm"
+            >
+              {t.disclaimerBtn}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ヘッダー */}
+      <header className="bg-white no-print" style={{ borderBottom: '1px solid var(--gp-border)' }}>
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            <img src={GOPOWER_LOGO} alt="GO Power" style={{ height: 44, width: 'auto' }} />
+            <div>
+              <h1 className="text-xl font-black tracking-tight" style={{ color: 'var(--gp-red)' }}>
+                {t.appTitle}
+              </h1>
+              <p className="text-xs text-gray-500">{t.appSubtitle}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="lang-switcher">
+              <button className={`lang-btn ${lang === 'id' ? 'active' : ''}`} onClick={() => changeLanguage('id')}>🇮🇩 ID</button>
+              <button className={`lang-btn ${lang === 'ja' ? 'active' : ''}`} onClick={() => changeLanguage('ja')}>🇯🇵 JA</button>
+              <button className={`lang-btn ${lang === 'en' ? 'active' : ''}`} onClick={() => changeLanguage('en')}>🇬🇧 EN</button>
+            </div>
+            <span className="text-xs px-3 py-1 rounded-full font-bold" style={{ background: 'var(--gp-teal)', color: 'white' }}>
+              {t.versionBadge}
+            </span>
+          </div>
+        </div>
+      </header>
+
+      {/* タブ切り替え */}
+      <div className="bg-white shadow-sm no-print" style={{ borderBottom: '1px solid var(--gp-border)' }}>
+        <div className="max-w-7xl mx-auto px-6 flex">
+          <button
+            onClick={() => setActiveTab('input')}
+            className={`tab-btn ${activeTab === 'input' ? 'active' : ''}`}
+          >
+            {t.tabInput}
+          </button>
+          <button
+            onClick={() => setActiveTab('result')}
+            className={`tab-btn ${activeTab === 'result' ? 'active' : ''}`}
+          >
+            {t.tabResult}
+          </button>
+        </div>
+      </div>
+
+      {/* メインコンテンツ */}
+      <main className="max-w-7xl mx-auto px-6 py-6 flex-1 w-full">
+        {activeTab === 'input' && (
+          <InputSection
+            lang={lang}
+            jpyToIdrRate={jpyToIdrRate}
+            setJpyToIdrRate={updateJpyToIdrRate}
+            usdToIdrRate={usdToIdrRate}
+            setUsdToIdrRate={updateUsdToIdrRate}
+            address={address} setAddress={setAddress}
+            buildingType={buildingType} setBuildingType={setBuildingType}
+            roofShape={roofShape} setRoofShape={setRoofShape}
+            roofArea={roofArea} setRoofArea={setRoofArea}
+            areaSource={areaSource}
+            roofAreaMode={roofAreaMode} setRoofAreaMode={setRoofAreaMode}
+            showMap={showMap} setShowMap={setShowMap}
+            mapCenter={mapCenter}
+            geocoding={geocoding}
+            geocodeError={geocodeError}
+            onOpenMap={handleOpenMap}
+            onAreaConfirmed={handleAreaConfirmed}
+            monthlyBill={monthlyBill} setMonthlyBill={setMonthlyBill}
+            electricityRate={electricityRate} setElectricityRate={setElectricityRate}
+            importantLoads={importantLoads} setImportantLoads={setImportantLoads}
+            loadKw={loadKw} setLoadKw={setLoadKw}
+            bcpHours={bcpHours} setBcpHours={setBcpHours}
+            productMaster={productMaster} setProductMaster={setProductMaster}
+            isCorps={isCorps} setIsCorps={setIsCorps}
+            capital={capital} setCapital={setCapital}
+            isAoiro={isAoiro} setIsAoiro={setIsAoiro}
+            profit={profit} setProfit={setProfit}
+            kogyoshomeisho={kogyoshomeisho} setKogyoshomeisho={setKogyoshomeisho}
+            effectiveTaxRate={effectiveTaxRate} setEffectiveTaxRate={setEffectiveTaxRate}
+            onGoToResult={() => setActiveTab('result')}
+          />
+        )}
+
+        {activeTab === 'result' && (
+          <ResultSection
+            lang={lang}
+            jpyToIdrRate={jpyToIdrRate}
+            usdToIdrRate={usdToIdrRate}
+            address={address}
+            buildingType={buildingType}
+            result={result}
+            cashflowData={cashflowData}
+            isCorps={isCorps}
+            loadKw={loadKw}
+            bcpHours={bcpHours}
+            onPdfExport={handlePdfExport}
+            onBack={() => setActiveTab('input')}
+          />
+        )}
+      </main>
+
+      {/* フッター */}
+      <footer className="max-w-7xl mx-auto px-6 py-6 text-xs text-gray-500 no-print" style={{ borderTop: '1px solid var(--gp-border)' }}>
+        <div style={{ marginBottom: 6 }}>
+          <b>{t.footerNotice1}</b>
+        </div>
+        <div>{t.footerNotice2}</div>
+        <div>{t.footerNotice3}</div>
+        <div style={{ marginTop: 10 }}>© 株式会社GOパワー (GO Power Co., Ltd.)</div>
+      </footer>
+    </div>
+  );
+}
+
+// ============================================================
+// 入力セクション (InputSection Component)
+// ============================================================
+
+function InputSection(props) {
+  const { lang = 'ja', jpyToIdrRate = 110, setJpyToIdrRate, usdToIdrRate = 17750, setUsdToIdrRate } = props;
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+  const [showMaster, setShowMaster] = useState(false);
+  const [showRatesSetting, setShowRatesSetting] = useState(false);
+
+  const { effectiveArea, sheets, capacityKw } = calcCapacity(props.roofArea, props.roofShape);
+
+  // Dynamic Conversions
+  const idrBill = Math.round(props.monthlyBill * jpyToIdrRate);
+  const idrRate = Math.round(props.electricityRate * jpyToIdrRate);
+
+  const usdBill = Math.round((props.monthlyBill * jpyToIdrRate) / usdToIdrRate);
+  const usdRate = parseFloat(((props.electricityRate * jpyToIdrRate) / usdToIdrRate).toFixed(3));
+
+  const jpyPerUsd = (usdToIdrRate / jpyToIdrRate).toFixed(2);
+
+  return (
+    <div className="space-y-4">
+      {/* ① 物件特定 */}
+      <section className="gp-card p-5">
+        <h2 className="gp-section-title">{t.sec1Title}</h2>
+
+        <div className="grid grid-cols-12 gap-3">
+          <div className="col-span-12">
+            <label className="block text-sm font-semibold mb-1">{t.propAddress}</label>
+            <input
+              type="text"
+              className="gp-input"
+              placeholder={t.propAddressPlaceholder}
+              value={props.address}
+              onChange={(e) => props.setAddress(e.target.value)}
+            />
+          </div>
+
+          <div className="col-span-12 md:col-span-6">
+            <label className="block text-sm font-semibold mb-1">{t.buildingTypeLabel}</label>
+            <select
+              className="gp-input"
+              value={props.buildingType}
+              onChange={(e) => props.setBuildingType(e.target.value)}
+            >
+              {Object.entries(JIKASHOHI_RATES).map(([k, v]) => (
+                <option key={k} value={k}>{v.label[lang] || v.label.ja}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-span-12 md:col-span-6">
+            <label className="block text-sm font-semibold mb-1">{t.roofShapeLabel}</label>
+            <select
+              className="gp-input"
+              value={props.roofShape}
+              onChange={(e) => props.setRoofShape(e.target.value)}
+            >
+              {Object.entries(ROOF_SHAPES).map(([k, v]) => (
+                <option key={k} value={k}>{v.label[lang] || v.label.ja}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* 屋根面積取得モード切替 */}
+          <div className="col-span-12">
+            <label className="block text-sm font-semibold mb-2">{t.roofAreaModeLabel}</label>
+            <div className="flex">
+              <button
+                onClick={() => props.setRoofAreaMode('map')}
+                className={`mode-tab ${props.roofAreaMode === 'map' ? 'active' : ''}`}
+              >{t.modeMap}</button>
+              <button
+                onClick={() => props.setRoofAreaMode('manual')}
+                className={`mode-tab ${props.roofAreaMode === 'manual' ? 'active' : ''}`}
+              >{t.modeManual}</button>
+            </div>
+          </div>
+
+          {/* 航空写真実測モード */}
+          {props.roofAreaMode === 'map' && (
+            <div className="col-span-12">
+              {!props.showMap ? (
+                <div className="gp-card p-4" style={{ background: '#F8F5EE' }}>
+                  <div className="text-sm mb-3" style={{ lineHeight: 1.7 }}>
+                    {t.mapTip}
+                  </div>
+                  <button
+                    onClick={props.onOpenMap}
+                    disabled={props.geocoding || !props.address}
+                    className="gp-btn-secondary px-6 py-2 rounded-md font-semibold"
+                  >
+                    {props.geocoding ? t.btnGeocoding : t.btnOpenMap}
+                  </button>
+                  {props.geocodeError && (
+                    <div className="mt-2 text-xs" style={{ color: 'var(--gp-red)' }}>
+                      ⚠ {props.geocodeError}
+                    </div>
+                  )}
+                  {props.areaSource === 'map' && (
+                    <div className="mt-3 text-xs" style={{ color: 'var(--gp-teal)' }}>
+                      ✓ {t.mapMeasuredOk.replace('{area}', props.roofArea.toLocaleString())}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <MapDrawingPanel
+                  lang={lang}
+                  initialCenter={props.mapCenter}
+                  onAreaConfirmed={props.onAreaConfirmed}
+                  onCancel={() => props.setShowMap(false)}
+                />
+              )}
+            </div>
+          )}
+
+          {/* 手入力モード */}
+          {props.roofAreaMode === 'manual' && (
+            <div className="col-span-12">
+              <div className="gp-card p-4" style={{ background: '#F8F5EE' }}>
+                <div className="text-sm" style={{ lineHeight: 1.7 }}>
+                  {t.manualTip}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 屋根面積表示 & 入力 */}
+          <div className="col-span-12">
+            <label className="block text-sm font-semibold mb-1">
+              {t.roofAreaLabel}
+            </label>
+            <input
+              type="number"
+              className="gp-input"
+              value={props.roofArea}
+              onChange={(e) => {
+                props.setRoofArea(parseFloat(e.target.value) || 0);
+                props.setAreaSource('manual');
+              }}
+            />
+            <div className="flex gap-4 text-xs text-gray-500 mt-2 flex-wrap">
+              <span>{t.effectiveRoofArea} <b>{effectiveArea.toFixed(1)} ㎡</b></span>
+              <span>{t.panelSheets} <b>{sheets} {t.panelUnit || 'lembar'}</b></span>
+              <span>{t.installedCapacity} <b style={{ color: 'var(--gp-red)' }}>{capacityKw.toFixed(1)} kW</b></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ② 経済条件 & リアルタイム為替レート設定 */}
+      <section className="gp-card p-5">
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+          <h2 className="gp-section-title mb-0">{t.sec2Title}</h2>
+          <button
+            type="button"
+            onClick={() => setShowRatesSetting(!showRatesSetting)}
+            className="text-xs px-3 py-1.5 rounded border border-gray-300 font-bold hover:bg-gray-50 flex items-center gap-1"
+            style={{ color: 'var(--gp-teal)' }}
+          >
+            {t.secRatesSettingTitle} {showRatesSetting ? '▲' : '▼'}
+          </button>
+        </div>
+
+        {/* 為替レート設定パネル (折りたたみ / 展開可能) */}
+        {showRatesSetting && (
+          <div className="p-4 mb-4 rounded-md border" style={{ background: '#FAF7F0', borderColor: 'var(--gp-gold)' }}>
+            <div className="text-xs font-bold text-gray-700 mb-2">{t.secRatesSettingTitle}</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">{t.rateJpyToIdr}</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-gray-500">¥1 = Rp</span>
+                  <input
+                    type="number"
+                    step="1"
+                    className="gp-input text-sm font-bold"
+                    value={jpyToIdrRate}
+                    onChange={(e) => setJpyToIdrRate(parseFloat(e.target.value) || 1)}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">{t.rateUsdToIdr}</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-gray-500">$1 = Rp</span>
+                  <input
+                    type="number"
+                    step="50"
+                    className="gp-input text-sm font-bold"
+                    value={usdToIdrRate}
+                    onChange={(e) => setUsdToIdrRate(parseFloat(e.target.value) || 1)}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-200 flex-wrap gap-2 text-xs">
+              <span className="text-gray-600">
+                {t.rateCalculated} <b>¥1 = Rp {jpyToIdrRate}</b> ｜ <b>$1 = Rp {usdToIdrRate.toLocaleString('id-ID')}</b> ｜ <b>$1 ≈ ¥{jpyPerUsd}</b>
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setJpyToIdrRate(110);
+                  setUsdToIdrRate(17750);
+                }}
+                className="text-xs text-gray-500 hover:text-red-700 underline"
+              >
+                {t.btnResetRates}
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-12 gap-3">
+          <div className="col-span-12 md:col-span-6">
+            <label className="block text-sm font-semibold mb-1">{t.monthlyBillLabel}</label>
+            {lang === 'id' ? (
+              <div>
+                <input
+                  type="number"
+                  step="500000"
+                  className="gp-input font-bold"
+                  value={idrBill}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    props.setMonthlyBill(Math.round(val / jpyToIdrRate));
+                  }}
+                />
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="rate-pill">Rp {idrBill.toLocaleString('id-ID')} / bln</span>
+                  <span className="rate-pill">≈ ¥{Math.round(props.monthlyBill).toLocaleString()}</span>
+                  <span className="rate-pill">≈ ${usdBill.toLocaleString('en-US')}</span>
+                </div>
+              </div>
+            ) : (lang === 'en' ? (
+              <div>
+                <input
+                  type="number"
+                  step="50"
+                  className="gp-input font-bold"
+                  value={usdBill}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    const inJpy = Math.round((val * usdToIdrRate) / jpyToIdrRate);
+                    props.setMonthlyBill(inJpy);
+                  }}
+                />
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="rate-pill">${usdBill.toLocaleString('en-US')} / mo</span>
+                  <span className="rate-pill">≈ Rp {idrBill.toLocaleString('id-ID')}</span>
+                  <span className="rate-pill">≈ ¥{Math.round(props.monthlyBill).toLocaleString()}</span>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <input
+                  type="number"
+                  step="10000"
+                  className="gp-input font-bold"
+                  value={props.monthlyBill}
+                  onChange={(e) => props.setMonthlyBill(parseFloat(e.target.value) || 0)}
+                />
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="rate-pill">¥{Math.round(props.monthlyBill).toLocaleString()} / 月</span>
+                  <span className="rate-pill">≈ Rp {idrBill.toLocaleString('id-ID')}</span>
+                  <span className="rate-pill">≈ ${usdBill.toLocaleString('en-US')}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="col-span-12 md:col-span-6">
+            <label className="block text-sm font-semibold mb-1">{t.electricityRateLabel}</label>
+            {lang === 'id' ? (
+              <div>
+                <input
+                  type="number"
+                  step="10"
+                  className="gp-input font-bold"
+                  value={idrRate}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    props.setElectricityRate(val / jpyToIdrRate);
+                  }}
+                />
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="rate-pill">Rp {idrRate.toLocaleString('id-ID')} / kWh</span>
+                  <span className="rate-pill">≈ ¥{props.electricityRate.toFixed(1)}</span>
+                  <span className="rate-pill">≈ ${usdRate}</span>
+                </div>
+              </div>
+            ) : (lang === 'en' ? (
+              <div>
+                <input
+                  type="number"
+                  step="0.005"
+                  className="gp-input font-bold"
+                  value={usdRate}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value) || 0;
+                    const inJpy = (val * usdToIdrRate) / jpyToIdrRate;
+                    props.setElectricityRate(inJpy);
+                  }}
+                />
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="rate-pill">${usdRate} / kWh</span>
+                  <span className="rate-pill">≈ Rp {idrRate.toLocaleString('id-ID')}</span>
+                  <span className="rate-pill">≈ ¥{props.electricityRate.toFixed(1)}</span>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <input
+                  type="number"
+                  step="0.5"
+                  className="gp-input font-bold"
+                  value={props.electricityRate}
+                  onChange={(e) => props.setElectricityRate(parseFloat(e.target.value) || 0)}
+                />
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="rate-pill">¥{props.electricityRate.toFixed(1)} / kWh</span>
+                  <span className="rate-pill">≈ Rp {idrRate.toLocaleString('id-ID')}</span>
+                  <span className="rate-pill">≈ ${usdRate}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ③ BCP対策 */}
+      <section className="gp-card p-5">
+        <h2 className="gp-section-title">{t.sec3Title}</h2>
+        <div className="grid grid-cols-12 gap-3">
+          <div className="col-span-12 md:col-span-6">
+            <label className="block text-sm font-semibold mb-1">{t.bcpTargetHoursLabel}</label>
+            <select
+              className="gp-input"
+              value={props.bcpHours}
+              onChange={(e) => props.setBcpHours(parseFloat(e.target.value))}
+            >
+              <option value="4">4 {t.hoursUnit}</option>
+              <option value="8">8 {t.hoursUnit}</option>
+              <option value="12">12 {t.hoursUnit}</option>
+              <option value="24">24 {t.hoursUnit}</option>
+              <option value="48">48 {t.hoursUnit}</option>
+              <option value="72">72 {t.hoursUnit}</option>
+            </select>
+          </div>
+
+          <div className="col-span-12">
+            <label className="block text-sm font-semibold mb-2">{t.importantLoadsLabel}</label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {Object.entries(IMPORTANT_LOADS).map(([k, v]) => (
+                <label key={k} className="flex items-center gap-2 p-2 border rounded cursor-pointer hover:bg-gray-50 text-xs">
+                  <input
+                    type="checkbox"
+                    className="gp-checkbox"
+                    checked={!!props.importantLoads[k]}
+                    onChange={(e) => props.setImportantLoads(prev => ({ ...prev, [k]: e.target.checked }))}
+                  />
+                  <span>{v.label[lang] || v.label.ja} ({v.kw}kW)</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="col-span-12">
+            <label className="block text-sm font-semibold mb-1">{t.customLoadKwLabel}</label>
+            <input
+              type="number"
+              step="0.1"
+              className="gp-input"
+              value={props.loadKw}
+              onChange={(e) => props.setLoadKw(parseFloat(e.target.value) || 0)}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ④ 法人税制優遇 */}
+      {props.isCorps && (
+        <section className="gp-card p-5">
+          <h2 className="gp-section-title">{t.sec4Title}</h2>
+          <div className="grid grid-cols-12 gap-3">
+            <div className="col-span-12 md:col-span-6">
+              <label className="block text-sm font-semibold mb-1">{t.corpScaleLabel}</label>
+              <select
+                className="gp-input"
+                value={props.capital <= 30000000 ? 'small_30m' : (props.capital <= 100000000 ? 'sme_100m' : 'large')}
+                onChange={(e) => {
+                  if (e.target.value === 'small_30m') props.setCapital(30000000);
+                  else if (e.target.value === 'sme_100m') props.setCapital(100000000);
+                  else props.setCapital(200000000);
+                }}
+              >
+                {Object.entries(CORP_SCALES).map(([k, v]) => (
+                  <option key={k} value={k}>{v.label[lang] || v.label.ja}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="col-span-12 md:col-span-6">
+              <label className="block text-sm font-semibold mb-1">{t.isAoiroLabel}</label>
+              <select
+                className="gp-input"
+                value={props.isAoiro ? 'Y' : 'N'}
+                onChange={(e) => props.setIsAoiro(e.target.value === 'Y')}
+              >
+                <option value="Y">{t.isAoiroYes}</option>
+                <option value="N">{t.isAoiroNo}</option>
+              </select>
+            </div>
+
+            <div className="col-span-12 md:col-span-6">
+              <label className="block text-sm font-semibold mb-1">{t.kogyoCertLabel}</label>
+              <select
+                className="gp-input"
+                value={props.kogyoshomeisho}
+                onChange={(e) => props.setKogyoshomeisho(e.target.value)}
+              >
+                <option value="Y">{t.kogyoCertYes}</option>
+                <option value="N">{t.kogyoCertNo}</option>
+              </select>
+            </div>
+
+            <div className="col-span-12 md:col-span-6">
+              <label className="block text-sm font-semibold mb-1">{t.annualProfitLabel}</label>
+              {lang === 'id' ? (
+                <div>
+                  <input
+                    type="number"
+                    step="50000000"
+                    className="gp-input font-bold"
+                    value={Math.round(props.profit * jpyToIdrRate)}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value) || 0;
+                      props.setProfit(Math.round(val / jpyToIdrRate));
+                    }}
+                  />
+                  <div className="text-xs text-gray-500 mt-1">
+                    (Rp {Math.round(props.profit * jpyToIdrRate).toLocaleString('id-ID')})
+                  </div>
+                </div>
+              ) : (lang === 'en' ? (
+                <div>
+                  <input
+                    type="number"
+                    step="5000"
+                    className="gp-input font-bold"
+                    value={Math.round((props.profit * jpyToIdrRate) / usdToIdrRate)}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value) || 0;
+                      props.setProfit(Math.round((val * usdToIdrRate) / jpyToIdrRate));
+                    }}
+                  />
+                  <div className="text-xs text-gray-500 mt-1">
+                    ($ {Math.round((props.profit * jpyToIdrRate) / usdToIdrRate).toLocaleString('en-US')})
+                  </div>
+                </div>
+              ) : (
+                <input
+                  type="number"
+                  step="1000000"
+                  className="gp-input font-bold"
+                  value={props.profit}
+                  onChange={(e) => props.setProfit(parseFloat(e.target.value) || 0)}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ⑤ 単価マスタ（折りたたみ） */}
+      <section className="gp-card p-4">
+        <div
+          className="flex items-center justify-between cursor-pointer text-xs font-semibold text-gray-600"
+          onClick={() => setShowMaster(!showMaster)}
+        >
+          <span>{t.sec5Title}</span>
+          <span>{showMaster ? (t.toggleClose || '▲ Tutup') : (t.toggleOpen || '▼ Tampilkan')}</span>
+        </div>
+        {showMaster && (
+          <div className="grid grid-cols-3 gap-3 mt-4 pt-3 border-t">
+            <ProductMasterField 
+              label={lang === 'id' ? "Daya Modul Panel (W)" : (lang === 'en' ? "PV Module Rating (W)" : "パネル定格 (W)")} 
+              value={props.productMaster.panelW}
+              onChange={v => props.setProductMaster(prev => ({ ...prev, panelW: v }))} />
+            
+            <ProductMasterField 
+              label={lang === 'id' ? "Harga Panel (Rp/lembar)" : (lang === 'en' ? "Panel Price ($/module)" : "パネル単価 (円/枚)")} 
+              value={lang === 'id' ? Math.round(props.productMaster.panelUnitPrice * jpyToIdrRate) : (lang === 'en' ? Math.round((props.productMaster.panelUnitPrice * jpyToIdrRate) / usdToIdrRate) : props.productMaster.panelUnitPrice)}
+              onChange={v => props.setProductMaster(prev => ({ 
+                ...prev, 
+                panelUnitPrice: lang === 'id' ? Math.round(v / jpyToIdrRate) : (lang === 'en' ? Math.round((v * usdToIdrRate) / jpyToIdrRate) : v) 
+              }))} />
+            
+            <ProductMasterField 
+              label={lang === 'id' ? "Harga Baterai (Rp/unit)" : (lang === 'en' ? "Battery Price ($/unit)" : "蓄電池単価 (円/ユニット)")} 
+              value={lang === 'id' ? Math.round(props.productMaster.batteryUnitPrice * jpyToIdrRate) : (lang === 'en' ? Math.round((props.productMaster.batteryUnitPrice * jpyToIdrRate) / usdToIdrRate) : props.productMaster.batteryUnitPrice)}
+              onChange={v => props.setProductMaster(prev => ({ 
+                ...prev, 
+                batteryUnitPrice: lang === 'id' ? Math.round(v / jpyToIdrRate) : (lang === 'en' ? Math.round((v * usdToIdrRate) / jpyToIdrRate) : v) 
+              }))} />
+            
+            <ProductMasterField 
+              label={lang === 'id' ? "Biaya EPC (Rp/kW)" : (lang === 'en' ? "EPC Cost ($/kW)" : "工事単価 (円/kW)")} 
+              value={lang === 'id' ? Math.round(props.productMaster.installationPerKw * jpyToIdrRate) : (lang === 'en' ? Math.round((props.productMaster.installationPerKw * jpyToIdrRate) / usdToIdrRate) : props.productMaster.installationPerKw)}
+              onChange={v => props.setProductMaster(prev => ({ 
+                ...prev, 
+                installationPerKw: lang === 'id' ? Math.round(v / jpyToIdrRate) : (lang === 'en' ? Math.round((v * usdToIdrRate) / jpyToIdrRate) : v) 
+              }))} />
+          </div>
+        )}
+      </section>
+
+      {/* 診断ボタン */}
+      <button
+        onClick={props.onGoToResult}
+        className="gp-btn-primary w-full py-4 rounded-md font-bold text-base shadow-lg"
+      >
+        {t.btnGoToResult}
+      </button>
+    </div>
+  );
+}
+
+function ProductMasterField({ label, value, onChange }) {
+  return (
+    <div>
+      <label className="block text-xs text-gray-500 mb-1">{label}</label>
+      <input
+        type="number"
+        className="gp-input text-xs"
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+      />
+    </div>
+  );
+}
+
+// ============================================================
+// 診断結果セクション (ResultSection Component)
+// ============================================================
+
+function ResultSection({ address, buildingType, result, cashflowData, isCorps, loadKw, bcpHours, onPdfExport, onBack, lang = 'ja', jpyToIdrRate = 110, usdToIdrRate = 17750 }) {
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ja;
+  const [companyName, setCompanyName] = useState('');
+  const [taxPriority, setTaxPriority] = useState('cashflow');
+
+  const { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine } = window.Recharts || {};
+
+  const fmt = (n) => Math.round(n || 0).toLocaleString();
+  const fmtYears = (y) => (y > 30 ? (lang === 'ja' ? '30年以上' : (lang === 'id' ? '> 30 Tahun' : '> 30 Years')) : `${(y || 0).toFixed(1)} ${t.yearUnit}`);
+
+  // Localized money format with dynamic rates
+  const fmtMoney = (val) => formatMoneyWithRates(val, lang, jpyToIdrRate, usdToIdrRate);
+
+  // Helper for localized tax strings
+  const getLocalizedStr = (item) => {
+    if (!item) return '';
+    if (typeof item === 'string') return item;
+    return item[lang] || item.ja || '';
+  };
+
+  const getLocalizedList = (list) => {
+    if (!list) return [];
+    if (Array.isArray(list)) return list;
+    return list[lang] || list.ja || [];
+  };
+
+  // PowerPoint PPTX 出力 (完全多言語対応 + IDR Rp & USD $ + レート注記)
+  const handlePptxExport = () => {
+    if (!window.PptxGenJS) {
+      alert('PowerPoint library not ready');
+      return;
+    }
+    const p = new window.PptxGenJS();
+    p.layout = 'LAYOUT_16x9';
+    const W = 10, H = 5.625;
+    const RED = 'C0392B', TX = '1A1A1A', MUT = '6B6B6B', LN = 'E0DCD0', LT = 'F5F1E8', WH = 'FFFFFF';
+    const F = 'Meiryo';
+    const today = new Date();
+    const cn = companyName.trim();
+    const isHome = buildingType.startsWith('個人宅');
+    const tax = result.taxScheme && result.taxScheme.taxSaving > 0;
+
+    let pageNo = 0;
+    const edge = (s, h = 0.08) => s.addShape(p.ShapeType.rect, { x: 0, y: 0, w: W, h, fill: { color: RED }, line: { type: 'none' } });
+    const footer = (s, num) => {
+      s.addShape(p.ShapeType.line, { x: 0.45, y: H - 0.38, w: W - 0.9, h: 0, line: { color: LN, width: 1 } });
+      const rateNote = lang === 'id' ? ` (Kurs: ¥1=Rp${jpyToIdrRate}, $1=Rp${usdToIdrRate})` : (lang === 'en' ? ` (Exchange: $1=Rp${usdToIdrRate}, ¥1=Rp${jpyToIdrRate})` : '');
+      const brandStr = (lang === 'id' ? 'PT GO Power Indonesia ｜ GO Power Co., Ltd.' : (lang === 'en' ? 'GO Power Co., Ltd. (Global Clean Energy Solutions)' : '株式会社GOパワー ｜ GO Power Co., Ltd.')) + rateNote;
+      s.addText(brandStr, { x: 0.45, y: H - 0.34, w: 7.5, h: 0.25, fontFace: F, fontSize: 8, color: MUT, align: 'left', valign: 'middle', margin: 0 });
+      s.addText(String(num), { x: W - 1.45, y: H - 0.34, w: 1, h: 0.25, fontFace: F, fontSize: 8, color: MUT, align: 'right', valign: 'middle', margin: 0 });
+    };
+    const header = (s, title) => {
+      s.addText(title, { x: 0.45, y: 0.25, w: 6.8, h: 0.45, fontFace: F, fontSize: 18, bold: true, color: TX, align: 'left', valign: 'middle', margin: 0 });
+      if (cn) s.addText(cn, { x: 7.25, y: 0.25, w: 2.3, h: 0.45, fontFace: F, fontSize: 11, color: MUT, align: 'right', valign: 'middle', margin: 0 });
+      s.addShape(p.ShapeType.line, { x: 0.45, y: 0.78, w: W - 0.9, h: 0, line: { color: RED, width: 1.5 } });
+    };
+    const calloutBar = (s, y, h, text) => {
+      s.addShape(p.ShapeType.rect, { x: 0.45, y, w: W - 0.9, h, fill: { color: LT }, line: { type: 'none' } });
+      s.addShape(p.ShapeType.rect, { x: 0.45, y, w: 0.08, h, fill: { color: RED }, line: { type: 'none' } });
+      s.addText(text, { x: 0.65, y, w: W - 1.2, h, fontFace: F, fontSize: 11, bold: true, color: TX, align: 'left', valign: 'middle', margin: 0 });
+    };
+
+    // Slide 1: 表紙
+    let s = p.addSlide();
+    edge(s, 0.12);
+    s.addImage({ data: GOPOWER_LOGO, x: (W - 2.8) / 2, y: 1.0, w: 2.8, h: 0.62 });
+    
+    const coverTitle = cn || (isHome 
+      ? (lang === 'id' ? 'Proposal Tenaga Surya Mandiri' : (lang === 'en' ? 'Residential Solar & Storage Proposal' : '自家消費型太陽光＋蓄電池 ご提案書'))
+      : (lang === 'id' ? 'Proposal Pembangkit Tenaga Surya & Baterai BESS' : (lang === 'en' ? 'Commercial Solar PV & BESS Storage System Proposal' : '自家消費型太陽光＋蓄電池 導入提案書')));
+    
+    s.addText(coverTitle, { x: 0.45, y: 1.9, w: W - 0.9, h: 0.7, fontFace: F, fontSize: 22, bold: true, color: TX, align: 'center', valign: 'middle' });
+    
+    const propLabel = lang === 'id' ? 'Lokasi Properti: ' : (lang === 'en' ? 'Property: ' : '診断物件：');
+    s.addText(`${propLabel}${address || t.noAddress} ｜ ${result.capacityKw.toFixed(1)}kW PV + ${result.actualBatteryKwh.toFixed(1)}kWh BESS`, { x: 0.45, y: 2.7, w: W - 0.9, h: 0.4, fontFace: F, fontSize: 13, color: RED, bold: true, align: 'center', valign: 'middle' });
+    s.addText(`GO Power Co., Ltd. ｜ ${today.toISOString().slice(0, 10)}`, { x: 0.45, y: 4.6, w: W - 0.9, h: 0.3, fontFace: F, fontSize: 10, color: MUT, align: 'center' });
+
+    // Slide 2: 設備・経済性・BCP
+    pageNo++;
+    s = p.addSlide();
+    edge(s, 0.06);
+    
+    const s2Header = lang === 'id' ? 'Ringkasan Diagnosis ── Spesifikasi, Finansial & BCP' : (lang === 'en' ? 'Diagnosis Summary ── System, Economics & BCP' : '御社の診断結果 ── 設備・経済性・BCP');
+    header(s, s2Header);
+    
+    const box1Title = lang === 'id' ? 'Spesifikasi Sistem Surya & Baterai' : (lang === 'en' ? 'Solar PV & BESS System Specs' : '太陽光＋蓄電池 設備仕様');
+    s.addShape(p.ShapeType.rect, { x: 0.45, y: 0.95, w: 4.3, h: 3.0, fill: { color: WH }, line: { color: LN, width: 1 } });
+    s.addText(box1Title, { x: 0.66, y: 1.05, w: 3.8, h: 0.3, fontFace: F, fontSize: 12, bold: true, color: TX });
+    
+    const specBullets = lang === 'id' ? [
+      `・ Kapasitas Panel: ${result.capacityKw.toFixed(1)} kW (${result.sheets} lembar)`,
+      `・ Kapasitas Baterai BESS: ${result.actualBatteryKwh.toFixed(1)} kWh`,
+      `・ Estimasi Produksi / Tahun: ${fmt(result.annualGen)} kWh/tahun`,
+      `・ Rasio Konsumsi Mandiri: ${(result.selfConsumptionRate * 100).toFixed(0)} %`
+    ].join('\n') : (lang === 'en' ? [
+      `・ Solar PV Capacity: ${result.capacityKw.toFixed(1)} kW (${result.sheets} modules)`,
+      `・ BESS Battery Storage: ${result.actualBatteryKwh.toFixed(1)} kWh`,
+      `・ Est. Annual Output: ${fmt(result.annualGen)} kWh/year`,
+      `・ Self-Consumption Rate: ${(result.selfConsumptionRate * 100).toFixed(0)} %`
+    ].join('\n') : [
+      `・ 太陽光パネル：${result.capacityKw.toFixed(1)} kW（${result.sheets}枚）`,
+      `・ 蓄電池容量：${result.actualBatteryKwh.toFixed(1)} kWh`,
+      `・ 年間予想発電量：${fmt(result.annualGen)} kWh/年`,
+      `・ 自家消費率：${(result.selfConsumptionRate * 100).toFixed(0)} %`
+    ].join('\n'));
+    s.addText(specBullets, { x: 0.66, y: 1.45, w: 3.8, h: 2.2, fontFace: F, fontSize: 11, color: TX, lineSpacingMultiple: 1.3 });
+
+    const box2Title = lang === 'id' ? 'Manfaat Finansial & Keandalan BCP' : (lang === 'en' ? 'Economic Benefits & BCP Protection' : '経済メリット & BCP価値');
+    s.addShape(p.ShapeType.rect, { x: 5.25, y: 0.95, w: 4.3, h: 3.0, fill: { color: WH }, line: { color: LN, width: 1 } });
+    s.addText(box2Title, { x: 5.46, y: 1.05, w: 3.8, h: 0.3, fontFace: F, fontSize: 12, bold: true, color: TX });
+    
+    const econBullets = lang === 'id' ? [
+      `・ Penghematan Listrik: ~${fmtMoney(result.annualSaving)}/tahun`,
+      `・ Estimasi Investasi: ~${fmtMoney(result.investment)}`,
+      `・ Balik Modal (Payback): ${fmtYears(result.payback)}${tax ? ` (Setelah Pajak: ${fmtYears(result.paybackAfterTax)})` : ''}`,
+      `・ Durasi Daya Darurat: ~${result.backupHours.toFixed(0)} Jam`,
+      `・ Nilai Proteksi BCP: ~${fmtMoney(result.bcpValue)}/kejadian`
+    ].join('\n') : (lang === 'en' ? [
+      `・ Annual Utility Savings: ~${fmtMoney(result.annualSaving)}/year`,
+      `・ Total EPC Investment: ~${fmtMoney(result.investment)}`,
+      `・ Payback Period: ${fmtYears(result.payback)}${tax ? ` (Post-Tax: ${fmtYears(result.paybackAfterTax)})` : ''}`,
+      `・ Emergency Backup: ~${result.backupHours.toFixed(0)} Hours`,
+      `・ BCP Outage Value: ~${fmtMoney(result.bcpValue)}/event`
+    ].join('\n') : [
+      `・ 年間電気代削減：約 ${fmtMoney(result.annualSaving)}/年`,
+      `・ 標準投資額：約 ${fmtMoney(result.investment)}`,
+      `・ 投資回収期間：約 ${fmtYears(result.payback)}${tax ? `（税制優遇後 ${fmtYears(result.paybackAfterTax)}）` : ''}`,
+      `・ 停電時電力確保：約 ${result.backupHours.toFixed(0)} 時間`,
+      `・ 業務停止損失回避：約 ${fmtMoney(result.bcpValue)}/回`
+    ].join('\n'));
+    s.addText(econBullets, { x: 5.46, y: 1.45, w: 3.8, h: 2.2, fontFace: F, fontSize: 11, color: TX, lineSpacingMultiple: 1.3 });
+
+    const s2Callout = lang === 'id' 
+      ? `Menghemat biaya listrik ~${fmtMoney(result.annualSaving)}/tahun dan balik modal dalam ${fmtYears(tax ? result.paybackAfterTax : result.payback)}.`
+      : (lang === 'en'
+        ? `Saves approx. ${fmtMoney(result.annualSaving)}/year with estimated payback in ${fmtYears(tax ? result.paybackAfterTax : result.payback)}.`
+        : `年間約 ${fmtMoney(result.annualSaving)}の電気代を削減し、${fmtYears(tax ? result.paybackAfterTax : result.payback)}で初期費用を回収可能です。`);
+    calloutBar(s, 4.15, 0.6, s2Callout);
+    footer(s, pageNo);
+
+    // Slide 3: 税制メリット (法人の場合)
+    if (tax) {
+      pageNo++;
+      s = p.addSlide();
+      edge(s, 0.06);
+      const s3Header = lang === 'id' ? 'Fasilitas Insentif Pajak Korporasi ── 2 Opsi Strategi' : (lang === 'en' ? 'Corporate Tax Incentives ── 2 Strategic Choices' : '御社の税制メリット ── 2つの選び方');
+      header(s, s3Header);
+
+      s.addShape(p.ShapeType.rect, { x: 0.45, y: 1.0, w: W - 0.9, h: 0.6, fill: { color: LT }, line: { type: 'none' } });
+      const taxSchemeName = getLocalizedStr(result.taxScheme.type);
+      s.addText(taxSchemeName, { x: 0.65, y: 1.0, w: 5.8, h: 0.6, fontFace: F, fontSize: 12, bold: true, color: RED, align: 'left', valign: 'middle' });
+      s.addText(`${t.maxTaxSaving}: ${fmtMoney(result.taxScheme.taxSaving)}`, { x: 6.6, y: 1.0, w: 2.7, h: 0.6, fontFace: F, fontSize: 12, bold: true, color: RED, align: 'right', valign: 'middle' });
+
+      const cy = 1.85, ch = 2.0, cw = 4.3;
+      // Box 1: 即時償却
+      s.addShape(p.ShapeType.rect, { x: 0.45, y: cy, w: cw, h: 0.45, fill: { color: RED }, line: { type: 'none' } });
+      const opt1Title = lang === 'id' ? '① Prioritas Likuiditas → Amortisasi Kilat' : (lang === 'en' ? '① Cashflow Priority → Immediate Depreciation' : '① 資金繰り重視 → 即時償却');
+      s.addText(opt1Title, { x: 0.45, y: cy, w: cw, h: 0.45, fontFace: F, fontSize: 12, bold: true, color: WH, align: 'center', valign: 'middle' });
+      s.addShape(p.ShapeType.rect, { x: 0.45, y: cy + 0.45, w: cw, h: ch - 0.45, fill: { color: WH }, line: { color: LN, width: 1 } });
+      
+      const opt1Desc = lang === 'id' 
+        ? `・ Pengembalian kas Thn-1: +${fmtMoney(result.taxScheme.sokujiFirstYearCf)}\n・ Biaya investasi dibebankan 100% di tahun pertama.\n・ Mempercepat pemulihan likuiditas modal awal.`
+        : (lang === 'en'
+          ? `・ Year-1 Cash Refund: +${fmtMoney(result.taxScheme.sokujiFirstYearCf)}\n・ 100% full expense deduction in the first year.\n・ Accelerates capital recovery and early liquidity.`
+          : `・ 初年度現金効果：+${fmtMoney(result.taxScheme.sokujiFirstYearCf)}\n・ 取得額を初年度に一括損金算入。\n・ 手元資金を早く厚くし、投資回収を加速します。`);
+      s.addText(opt1Desc, { x: 0.65, y: cy + 0.55, w: cw - 0.4, h: ch - 0.6, fontFace: F, fontSize: 11, color: TX, lineSpacingMultiple: 1.25 });
+
+      // Box 2: 税額控除
+      s.addShape(p.ShapeType.rect, { x: 5.25, y: cy, w: cw, h: 0.45, fill: { color: RED }, line: { type: 'none' } });
+      const opt2Title = lang === 'id' ? '② Prioritas Total Potongan → Pengurangan Pajak Tetap' : (lang === 'en' ? '② Total Savings Priority → Direct Tax Credit' : '② 総額重視 → 税額控除');
+      s.addText(opt2Title, { x: 5.25, y: cy, w: cw, h: 0.45, fontFace: F, fontSize: 12, bold: true, color: WH, align: 'center', valign: 'middle' });
+      s.addShape(p.ShapeType.rect, { x: 5.25, y: cy + 0.45, w: cw, h: ch - 0.45, fill: { color: WH }, line: { color: LN, width: 1 } });
+      
+      const opt2Desc = lang === 'id'
+        ? `・ Potongan Pajak Langsung: ${fmtMoney(result.taxScheme.actualTaxCredit)}\n・ Pengurangan permanen dari kewajiban pajak korporasi.\n・ Sangat menguntungkan untuk memaksimalkan efisiensi total.`
+        : (lang === 'en'
+          ? `・ Direct Tax Reduction: ${fmtMoney(result.taxScheme.actualTaxCredit)}\n・ Permanent reduction from corporate income tax payable.\n・ Optimal for maximizing total net cumulative savings.`
+          : `・ 実効減税額：${fmtMoney(result.taxScheme.actualTaxCredit)} 直接控除\n・ 法人税額から直接控除する恒久的な減税。\n・ 総額の最大化を優先する場合に有利です。`);
+      s.addText(opt2Desc, { x: 5.45, y: cy + 0.55, w: cw - 0.4, h: ch - 0.6, fontFace: F, fontSize: 11, color: TX, lineSpacingMultiple: 1.25 });
+
+      const s3Callout = lang === 'id'
+        ? 'Pilih skema yang sesuai dengan kebijakan keuangan perusahaan Anda. Amortisasi Kilat sangat efektif untuk likuiditas awal.'
+        : (lang === 'en'
+          ? 'Select the optimal scheme matching your corporate financial strategy. Immediate depreciation maximizes early cashflow.'
+          : '御社の資金方針に合わせて有利な方を選択適用できます。手元資金を優先するなら即時償却が有効です。');
+      calloutBar(s, 4.15, 0.6, s3Callout);
+      footer(s, pageNo);
+    }
+
+    // Slide 4: 導入までの流れ
+    pageNo++;
+    s = p.addSlide();
+    edge(s, 0.06);
+    const s4Header = lang === 'id' ? 'Tahapan & Alur Pelaksanaan Proyek' : (lang === 'en' ? 'Project Implementation Roadmap' : '導入までの進め方');
+    header(s, s4Header);
+
+    const steps = lang === 'id' ? [
+      ['1', 'Survei Lapangan & Penawaran Final', 'Pemeriksaan struktur atap & instalasi panel listrik untuk penawaran mengikat.'],
+      ['2', 'Penyusunan Rencana & Sertifikasi Pajak', 'Pengajuan sertifikasi rencana peningkatan manajemen (didampingi tim GO Power).'],
+      ['3', 'Kontrak EPC & Instalasi Cepat', 'Pemasangan cepat tanpa perlu perombakan panel gardu distribusi rumit.'],
+      ['4', 'Komisioning & Mulai Penghematan', 'Pembangkit aktif, memangkas biaya listrik dan memperkuat ketahanan BCP.']
+    ] : (lang === 'en' ? [
+      ['1', 'Site Audit & Formal Quotation', 'Inspect roof structure and electrical panels to issue finalized binding proposal.'],
+      ['2', 'Tax Incentive Filing & Certification', 'File and certify the Management Enhancement Plan (supported by GO Power).'],
+      ['3', 'Contract & Rapid Installation', 'Fast EPC installation without complex grid intertie modifications.'],
+      ['4', 'Commissioning & Energy Savings', 'System online, immediately cutting electricity costs and boosting BCP resilience.']
+    ] : [
+      ['1', '現地調査・正式見積', '屋根・受電状況を確認し、確定見積をご提示。'],
+      ['2', '経営力向上計画の認定', '国の認定を取得（〜2027年3月末）。弊社が申請をフルサポート。'],
+      ['3', '契約・施工', '系統連系協議・受電盤改造が不要のため短工期で設置。'],
+      ['4', '稼働・コスト削減開始', '電力コスト削減・BCP強化・税制メリットを享受。']
+    ]);
+
+    const py = 1.2, ph = 0.65, px = 0.45;
+    steps.forEach((st, i) => {
+      const yy = py + i * (ph + 0.12);
+      s.addShape(p.ShapeType.ellipse, { x: px, y: yy + 0.04, w: 0.58, h: 0.58, fill: { color: RED }, line: { type: 'none' } });
+      s.addText(st[0], { x: px, y: yy + 0.04, w: 0.58, h: 0.58, fontFace: F, fontSize: 20, bold: true, color: WH, align: 'center', valign: 'middle' });
+      s.addText(st[1], { x: px + 0.8, y: yy + 0.04, w: 3.2, h: ph - 0.04, fontFace: F, fontSize: 13, bold: true, color: TX, align: 'left', valign: 'middle' });
+      s.addText(st[2], { x: px + 4.1, y: yy + 0.04, w: W - px - 4.1 - 0.45, h: ph - 0.04, fontFace: F, fontSize: 11, color: TX, align: 'left', valign: 'middle' });
+      if (i < steps.length - 1) {
+        s.addShape(p.ShapeType.line, { x: px + 0.29, y: yy + 0.64, w: 0, h: 0.18, line: { color: LN, width: 1.5 } });
+      }
+    });
+
+    const s4Callout = lang === 'id'
+      ? 'Pemasangan cepat dan efisien. Tim kami siap mendampingi setiap langkah hingga beroperasi.'
+      : (lang === 'en'
+        ? 'Fast turnaround installation. Our engineering team supports every stage from audit to commissioning.'
+        : '税制優遇は2027年3月末までの認定が必要です。早めの着手が投資メリットを最大化します。');
+    calloutBar(s, 4.45, 0.55, s4Callout);
+    footer(s, pageNo);
+
+    // Slide 5: 完了
+    s = p.addSlide();
+    edge(s, 0.12);
+    s.addImage({ data: GOPOWER_LOGO, x: (W - 2.8) / 2, y: 1.1, w: 2.8, h: 0.62 });
+    
+    const closingMsg = lang === 'id' ? 'Terima Kasih Atas Perhatian Anda' : (lang === 'en' ? 'Thank You for Your Attention' : 'ご清聴ありがとうございました');
+    s.addText(closingMsg, { x: 0.45, y: 2.2, w: W - 0.9, h: 0.6, fontFace: F, fontSize: 24, bold: true, color: TX, align: 'center' });
+    
+    const slogan = lang === 'id' 
+      ? 'Menghadirkan Energi Bersih & Keandalan Daya untuk Masa Depan' 
+      : (lang === 'en' ? 'Delivering Clean Energy & Power Reliability to Society' : '人と社会に、電気と快適を届ける');
+    s.addText(slogan, { x: 0.45, y: 2.85, w: W - 0.9, h: 0.4, fontFace: F, fontSize: 13, color: RED, align: 'center' });
+    
+    s.addShape(p.ShapeType.line, { x: (W - 2.8) / 2, y: 3.35, w: 2.8, h: 0, line: { color: RED, width: 1.5 } });
+    s.addText('株式会社GOパワー (GO Power Co., Ltd.)', { x: 0.45, y: 3.55, w: W - 0.9, h: 0.35, fontFace: F, fontSize: 13, color: TX, align: 'center' });
+    s.addText('https://gopower-solar.com', { x: 0.45, y: 3.95, w: W - 0.9, h: 0.3, fontFace: F, fontSize: 11, color: MUT, align: 'center' });
+
+    const safeName = (cn || (isHome ? (lang === 'id' ? 'Residensial' : (lang === 'en' ? 'Residential' : 'ご家庭')) : (lang === 'id' ? 'Klien_Korporat' : (lang === 'en' ? 'Corporate_Client' : '提案先')))).replace(/[\\/:*?"<>|　 ]/g, '');
+    const filePrefix = lang === 'id' ? 'Proposal_GoPower_IDR' : (lang === 'en' ? 'GoPower_Proposal_USD' : 'GOパワー提案書');
+    p.writeFile({ fileName: `${filePrefix}_${safeName}_${today.toISOString().slice(0, 10)}.pptx` });
+  };
+
+  return (
+    <div id="result-section" className="space-y-4">
+      <div className="flex justify-between items-center gap-3 flex-wrap no-print">
+        <button onClick={onBack} className="text-gray-600 hover:underline font-semibold">
+          {t.resultBackBtn}
+        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <input
+            type="text"
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            placeholder={t.companyPlaceholder}
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+            style={{ minWidth: 220 }}
+          />
+          <button onClick={handlePptxExport} className="gp-btn-primary px-5 py-2 rounded-md font-semibold text-sm">
+            {t.btnPptxExport}
+          </button>
+          <button onClick={onPdfExport} className="gp-btn-primary px-5 py-2 rounded-md font-semibold text-sm">
+            {t.btnPdfExport}
+          </button>
+        </div>
+      </div>
+
+      {/* 物件概要 & 総合ランク */}
+      <section className="gp-card p-6">
+        <div className="flex items-center justify-between gap-6 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <div className="text-xs text-gray-500 mb-1">{t.targetProperty}</div>
+            <div className="text-xl font-bold mb-1">{address || t.noAddress}</div>
+            <div className="text-sm text-gray-600">{JIKASHOHI_RATES[buildingType]?.label[lang] || JIKASHOHI_RATES[buildingType]?.label.ja || buildingType}</div>
+          </div>
+          <div className="text-center">
+            <div className="text-xs text-gray-500 mb-2">{t.overallRank}</div>
+            <div className={`rank-badge rank-${result.rank}`}>{result.rank}</div>
+            <div className="text-xs mt-2 font-bold" style={{ color: 'var(--gp-text)' }}>
+              {result.rank === 'A' ? t.rankA :
+               result.rank === 'B' ? t.rankB :
+               result.rank === 'C' ? t.rankC : t.rankD}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4枚メトリックカード */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <MetricCard label={t.cardCapacity} value={result.capacityKw.toFixed(1)} unit="kW"
+          subtext={t.sheetsSub.replace('{sheets}', result.sheets)} accent="red" />
+        <MetricCard label={t.cardBattery} value={result.actualBatteryKwh.toFixed(1)} unit="kWh"
+          subtext={t.batteryUnitSub.replace('{units}', Math.ceil(result.actualBatteryKwh / DEFAULT_PRODUCT_MASTER.batteryUnitKwh))} accent="teal" />
+        <MetricCard label={t.cardGen} value={fmt(result.annualGen)} unit="kWh"
+          subtext={result.prefecture} accent="red" />
+        <MetricCard label={t.cardSelfRate} value={(result.selfConsumptionRate * 100).toFixed(0)} unit="%"
+          subtext={t.withBatterySub} accent="teal" />
+      </div>
+
+      {/* 経済性 & Arus Kas */}
+      <section className="gp-card p-6">
+        <h2 className="gp-section-title">{t.secEconTitle}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <div className="text-xs text-gray-500">{t.annualSaving}</div>
+            <div className="number-large">{fmtMoney(result.annualSaving)}</div>
+            <div className="text-xs text-gray-500 mt-1">{t.perYear}</div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-500">{t.investmentCost}</div>
+            <div className="number-medium">{fmtMoney(result.investment)}</div>
+            <div className="text-xs text-gray-500 mt-1">{t.standardBase}</div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-500">{t.paybackYears}</div>
+            <div className="number-medium">{fmtYears(result.payback)}</div>
+            {result.taxScheme && result.taxScheme.taxSaving > 0 && (
+              <div className="text-xs mt-1" style={{ color: 'var(--gp-red)', fontWeight: 700 }}>
+                {t.afterTax} {fmtYears(result.paybackAfterTax)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <div className="text-xs font-semibold mb-2 text-gray-600">{t.chartTitle}</div>
+          {ResponsiveContainer ? (
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={cashflowData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E0DCD0" />
+                <XAxis dataKey="year" tick={{ fontSize: 11 }} label={{ value: t.yearUnit, position: 'insideBottom', offset: -5, fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => formatChartAxisWithRates(v, lang, jpyToIdrRate, usdToIdrRate)} />
+                <Tooltip formatter={(v) => fmtMoney(v)} />
+                <ReferenceLine y={0} stroke="#C0392B" strokeDasharray="3 3" />
+                <Line type="monotone" dataKey="cumulative" stroke="#1A6B5A" strokeWidth={3} dot={false} name="Cum. Cash Flow" />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="text-xs text-gray-400 p-4 text-center" style={{ background: '#fafafa', borderRadius: 4 }}>
+              （Graph loading...）
+            </div>
+          )}
+          <div className="text-xs text-gray-500 mt-2">
+            {t.cumProfit20}<b style={{ color: 'var(--gp-red)' }}>{fmtMoney(result.profit20)}</b>
+            {result.taxScheme && result.taxScheme.taxSaving > 0 && (
+              <span className="ml-4">{t.withTaxProfit}<b style={{ color: 'var(--gp-red)' }}>{fmtMoney(result.profit20 + result.taxScheme.taxSaving)}</b></span>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* BCP価値 */}
+      <section className="gp-card p-6">
+        <h2 className="gp-section-title">{t.secBcpTitle}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <div className="text-xs text-gray-500">{t.recBatteryCap}</div>
+            <div className="number-medium">{result.actualBatteryKwh.toFixed(1)}<span className="text-sm ml-1">kWh</span></div>
+            <div className="text-xs text-gray-500 mt-1">{t.recBatteryMin.replace('{req}', result.requiredBattery.toFixed(1))}</div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-500">{t.backupHoursLabel}</div>
+            <div className="number-medium">{result.backupHours.toFixed(0)}<span className="text-sm ml-1">{t.hoursUnit}</span></div>
+            <div className="text-xs text-gray-500 mt-1">{t.backupHoursSub.replace('{load}', loadKw).replace('{hours}', bcpHours)}</div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-500">{t.bcpAvoidVal}</div>
+            <div className="number-medium">{fmtMoney(result.bcpValue)}</div>
+            <div className="text-xs text-gray-500 mt-1">{t.perOutage}</div>
+          </div>
+        </div>
+      </section>
+
+      {/* 法人税制優遇 */}
+      {isCorps && result.taxScheme && (
+        <section className="gp-card p-6" style={{ borderLeft: '4px solid var(--gp-red)' }}>
+          <h2 className="gp-section-title">{t.secTaxTitle}</h2>
+          <div className="bg-gradient-to-r p-4 rounded-md mb-4" style={{
+            background: 'linear-gradient(135deg, rgba(192,57,43,0.05) 0%, rgba(26,107,90,0.05) 100%)'
+          }}>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <div className="text-xs text-gray-500">{t.applicableTaxScheme}</div>
+                <div className="text-lg font-bold" style={{ color: 'var(--gp-red)' }}>
+                  {getLocalizedStr(result.taxScheme.type)}
+                </div>
+                <div className="text-sm text-gray-700 mt-1">{getLocalizedStr(result.taxScheme.summary)}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-500">{t.maxTaxSaving}</div>
+                <div className="number-large">{fmtMoney(result.taxScheme.taxSaving)}</div>
+              </div>
+            </div>
+          </div>
+
+          {result.taxScheme.aType ? (
+            <div className="mb-3">
+              <div className="text-xs font-semibold mb-2 text-gray-600">{t.taxSchemeChoiceTitle}</div>
+              <div className="flex mb-3" style={{ maxWidth: 400 }}>
+                <button
+                  onClick={() => setTaxPriority('cashflow')}
+                  className={`mode-tab ${taxPriority === 'cashflow' ? 'active' : ''}`}
+                >{t.priorityCashflow}</button>
+                <button
+                  onClick={() => setTaxPriority('total')}
+                  className={`mode-tab ${taxPriority === 'total' ? 'active' : ''}`}
+                >{t.priorityTotal}</button>
+              </div>
+              <div className="text-sm p-3 rounded" style={{ background: 'rgba(212,168,69,0.1)', borderLeft: '3px solid var(--gp-gold)' }}>
+                {taxPriority === 'cashflow' ? (
+                  <span><b>{t.recImmediate}</b> — {t.recImmediateDesc.replace('{firstYear}', fmtMoney(result.taxScheme.sokujiFirstYearCf)).replace('{total}', fmtMoney(result.taxScheme.sokujiTotalCf))}</span>
+                ) : (
+                  <span><b>{t.recTaxCredit}</b> — {t.recTaxCreditDesc.replace('{credit}', fmtMoney(result.taxScheme.actualTaxCredit))}</span>
+                )}
+              </div>
+            </div>
+          ) : (result.taxScheme.recommendation && (
+            <div className="text-sm mb-3 p-3 rounded" style={{ background: 'rgba(212,168,69,0.1)', borderLeft: '3px solid var(--gp-gold)' }}>
+              <b>{t.checklistTitle}：</b>{getLocalizedStr(result.taxScheme.recommendation)}
+            </div>
+          ))}
+
+          {result.taxScheme.details && result.taxScheme.details.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+              {result.taxScheme.details.map((d, i) => (
+                <div key={i} className="border border-gray-200 rounded p-3">
+                  <div className="text-xs text-gray-500">{getLocalizedStr(d.label)}</div>
+                  <div className="text-lg font-bold mt-1" style={{ color: 'var(--gp-teal)' }}>
+                    {fmtMoney(d.value)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {result.taxScheme.requirements && (
+            <div>
+              <div className="text-xs font-semibold mb-2 text-gray-600">{t.checklistTitle}</div>
+              <ul className="text-sm space-y-1">
+                {getLocalizedList(result.taxScheme.requirements).map((r, i) => (
+                  <li key={i} className="font-mono">{r}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {result.taxScheme.alert && (
+            <div className="mt-3 p-3 rounded" style={{ background: 'rgba(192,57,43,0.1)', borderLeft: '3px solid var(--gp-red)' }}>
+              <b style={{ color: 'var(--gp-red)' }}>{t.certAlertTitle}</b>
+              <div className="text-sm text-gray-700 mt-1">{t.certAlertDesc}</div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* 環境貢献 */}
+      <section className="gp-card p-6">
+        <h2 className="gp-section-title">{t.secEnvTitle}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <div className="text-xs text-gray-500">{t.co2ReductionLabel}</div>
+            <div className="number-medium">{result.co2Reduction.toFixed(1)}<span className="text-sm ml-1">{t.co2Unit}</span></div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-500">{t.cedarTreesLabel}</div>
+            <div className="number-medium">{Math.round(result.co2Reduction * 71)}<span className="text-sm ml-1">{t.cedarTreesUnit}</span></div>
+            <div className="text-xs text-gray-500 mt-1">{t.cedarDesc}</div>
+          </div>
+        </div>
+      </section>
+
+      {/* 本診断結果についての注記 */}
+      <section className="gp-card p-4 text-xs text-gray-600">
+        <div className="font-bold text-gray-800 mb-2">{t.footerNoticeTitle}</div>
+        <div className="space-y-1">
+          <div>{t.footerNotice1}</div>
+          <div>{t.footerNotice2}</div>
+          <div>{t.footerNotice3}</div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function MetricCard({ label, value, unit, subtext, accent }) {
+  const color = accent === 'red' ? 'var(--gp-red)' : 'var(--gp-teal)';
+  return (
+    <div className="gp-card p-4">
+      <div className="text-xs text-gray-500">{label}</div>
+      <div className="mt-1">
+        <span className="text-3xl font-black" style={{ color }}>{value}</span>
+        <span className="text-sm ml-1 text-gray-600">{unit}</span>
+      </div>
+      <div className="text-xs text-gray-500 mt-1">{subtext}</div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

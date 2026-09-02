@@ -1,0 +1,23 @@
+{
+  "name": "gopower-sim-pro",
+  "version": "1.0.0",
+  "description": "GOパワーシミュレーターⅡ｜詳細診断版・法人税制優遇判定搭載",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve . -p 3000",
+    "start": "npx serve . -p 3000",
+    "serve": "npx serve ."
+  },
+  "keywords": [
+    "gopower",
+    "solar-simulator",
+    "battery-storage",
+    "bcp",
+    "tax-incentives"
+  ],
+  "author": "株式会社GOパワー",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}
